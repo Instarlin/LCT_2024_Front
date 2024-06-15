@@ -1,0 +1,33 @@
+.boilerPlateWrapper {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  text-align: center;
+  background: radial-gradient(circle at 70% 70%, #17C166 0%, #0F8B49 36%, #106839 68%, #0a592fec 84%, #0a6c38cc 100%);
+}
+
+.boilerPlateHeader {
+  padding: 12px 0 0 50px;
+  width: 100%;
+  height: 36px;
+  background-color: #fff;
+}
+
+.headerLink {
+  font-family: "SB Sans Display Semibold";
+  color: #000;
+  margin: 10px 60px 0 10px;
+  padding: 9px 18px 9px 18px;
+  /* border-radius: 12px 12px 0 0; */
+  border-radius: 18px;
+  transition: .2s;
+}
+
+.headerLink:hover {
+  background-color: #d8d8d8;
+  transition: .2s;
+}
+
+.selected {
+  background-color: #ededed;
+}

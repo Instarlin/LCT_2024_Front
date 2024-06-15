@@ -1,0 +1,100 @@
+.distrWrapper {
+  overflow: hidden;
+  /* width: 98%; */
+}
+
+.boilerPlateWrapperDistribution {
+  height: calc(100vh - 100px);
+}
+
+.distributionWrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  background-color: #fff;
+  color: #000;
+  height: 96%;
+  margin: 15px;
+}
+
+.topBar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  padding: 16px 10px 16px 10px;
+  border-bottom: 1px solid #000;
+}
+
+.topBarBtn {
+  /* background: 
+    linear-gradient(90deg, #106839 0%, #0d8545cc 100%) border-box,
+    #fff padding-box; */
+  padding: 0 12px 0 12px;
+  border-radius: 32px;
+  /* border: solid 1px transparent; */
+  overflow: hidden;
+  z-index: 2;
+  transition: .2s;
+  background-color: #73d13d;
+}
+
+.topBarBtn:hover {
+  background-color: #0d8545cc;
+  cursor: pointer;
+  transition: .2s;
+}
+
+/* .topBarBtn::before {
+  position: absolute;
+  content: '';
+  background: linear-gradient(90deg, #106839 0%, #0d8545cc 100%) border-box;
+  border-radius: 32px;
+  top: -10px;
+  left: -10px;
+  bottom: -10px;
+  right: -10px;
+  z-index: -1;
+} */
+
+.topBarBtn h3 {
+  font-family: "SB Sans Display Semibold";
+  font-weight: 400;
+}
+
+.mainContent {
+  display: flex;
+  flex-direction: row;
+  /* overflow: hidden; */
+  width: 100%;
+  height: 100%;
+}
+
+.sidebar {
+  flex: 1;
+  border-right: 1px solid #000;
+}
+
+.tableWrapper {
+  flex: 7;
+  height: 80%;
+}
+
+/* .modal {
+  width: 60%;
+  height: 80%;
+} */
+
+.modalContent {
+  line-height: 260px;
+  text-align: center;
+  color: #000;
+  background-color: #ddd;
+  margin-top: 16px;
+  /* color: token.colorTextTertiary,
+  backgroundColor: token.colorFillAlter,
+  borderRadius: token.borderRadiusLG,
+  border: `1px dashed ${token.colorBorder}`,
+  marginTop: 16, */
+}

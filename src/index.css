@@ -1,0 +1,55 @@
+:root {
+  font-family: "SB Sans Text";
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@font-face {
+  font-family: "SB Sans Text";
+  src: url("./assets/SB_Sans_Text.otf");
+}
+@font-face {
+  font-family: "SB Sans Display Semibold";
+  src: url("./assets/SB_Sans_Display_Semibold.otf");
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  /* overflow: hidden; */
+  overflow-x: hidden;
+  overflow-wrap: break-word;
+  min-width: 100vw;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background-color: #fff;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #577D86;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #87CBB9;
+  border-radius: 12px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #B9EDDD;
+}

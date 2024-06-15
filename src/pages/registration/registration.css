@@ -1,0 +1,177 @@
+.regWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.registrationBody {
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 50px);
+  min-width: 100vw;
+  background: radial-gradient(circle at 70% 70%, #17C166 0%, #0F8B49 36%, #106839 68%, #0a592fec 84%, #0a6c38cc 100%);
+}
+
+.mainForm {
+  display: flex;
+  justify-content: space-around;
+  align-items: inherit;
+  flex-direction: row;
+  width: 60%;
+  height: 80%;
+  border-radius: 42px;
+  background-color: #fff;
+}
+
+.formWrapper {
+  display: flex;
+  justify-content: space-around;
+  align-items: inherit;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+} 
+
+.leftFormWrapper {
+  display: inherit;
+  flex: 4;
+  justify-content: space-around;
+  align-items: center;
+  flex-direction: column;
+  color: #000;
+}
+
+.leftFormWrapper h1 {
+  user-select: none;
+  margin-bottom: 30px;
+  font-family: "SB Sans Display Semibold";
+  font-weight: 400;
+}
+
+.leftFormWrapper input {
+  font-family: "SB Sans Text";
+  color: #000;
+  background-color: #f0f0f0;
+  letter-spacing: 0.5px;
+  font-size: 18px;
+  outline: none;
+  border: none;
+  width: 320px;
+  margin: 30px 0 8px 0;
+  border-radius: 6px;
+  padding: 7px;
+  transition: .2s;
+}
+
+.leftFormWrapper input:hover {
+  background-color: #d8d8d8;
+  transition: .2s;
+}
+
+.formWrapper .leftFormWrapper .btn {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  font-family: "SB Sans Text";
+  width: 320px;
+  background-color: #17C166;
+  color: #000;
+  margin: 50px 0 0 0;
+  padding: 15px 0;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 18px;
+  cursor: pointer;
+  transition: .25s;
+}
+.formWrapper .leftFormWrapper .btn:hover {
+  background-color: #24e07c;
+  transition: .25s;
+  
+}
+
+.rightFormWrapper {
+  display: flex;
+  height: 100%;
+  border-radius: 0 42px 42px 0;
+  flex: 3;
+  justify-content: space-around;
+  overflow: hidden;
+  align-items: center;
+  background-color: #f0f0f0;
+  color: #000;
+}
+
+.rightFormWrapper .carousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+
+.rightFormWrapper .carousel .item {
+  position: absolute;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-top: 100%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform .5s ease-in-out, opacity .5s;
+  z-index: -1;
+  opacity: 0;
+}
+
+.rightFormWrapper .carousel .active {
+  opacity: 1;
+  z-index: 4;
+}
+
+.rightFormWrapper .carousel .prev {
+  opacity: 0;
+  z-index: 2;
+  transform: translate(50%, -50%);
+  
+}
+
+.rightFormWrapper .carousel .next {
+  opacity: 0;
+  z-index: 2;
+  transform: translate(-150%, -50%);
+}
+
+.counting, .distribution {
+  object-fit: cover;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.counting {
+  background-image: url("../../assets/images/IMG_0797.png");
+}
+
+.distribution {
+  background-image: url('../../assets//images/Group8.svg');
+}
+
+@media (width < 430px) {
+  .rightFormWrapper {
+    display: none;
+  }
+  .mainForm {
+    width: 100%;
+    height: 100%;
+    border-radius: 0px;
+    overflow: hidden;
+  }
+  html, body, .regWrapper .registrationBody, .formWrapper {
+    overflow: hidden;
+  }
+}

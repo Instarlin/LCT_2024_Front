@@ -1,0 +1,15 @@
+#headerWrapper {
+  position: fixed;
+  top: 0px;
+  transition: .3s;
+}
+
+.boilerPlateWrapperAnalysis {
+  width: 100%;
+  height: 120vh;
+}
+
+.boilerPlateHeader {
+  font-family: "SB Sans Display Semibold";
+}
+
