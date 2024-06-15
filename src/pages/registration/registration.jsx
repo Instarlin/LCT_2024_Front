@@ -46,7 +46,7 @@ const Registration = () => {
                   <Link>Забыли пароль?</Link>
                   <Link style={{textDecoration: 'none'}} to={"/service/distribution"} className="btn">Login</Link>
                   <div>
-                    <p>Нет аккаута? <Link onClick={handleClick}>Зарегистрирутейсь</Link></p>
+                    <p>Нет аккаута? <Link onClick={handleClick}>Зарегистрируйтесь</Link></p>
                   </div>
                 </>
               }

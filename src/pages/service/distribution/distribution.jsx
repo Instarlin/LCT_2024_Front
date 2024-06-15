@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Header } from "../../../components";
 import { Link } from "react-router-dom";
-import { Table, Space, Tag, Modal, Steps, Button } from 'antd';
+import { Table, Space, Tag, Modal, Steps, Button, Upload, ConfigProvider, message } from 'antd';
+import { InboxOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import '../service.css';
 import './distribution.css'
+const { Dragger } = Upload;
 
 const Distribution = () => {
   const [modal, openModal] = useState(false);
@@ -23,7 +25,7 @@ const Distribution = () => {
     key: item.title,
     title: item.title,
   }));
-  
+
   const getDistributions = async () => {
     try {
       const response = await axios.get('../../dragEl/data.json');
@@ -59,54 +61,27 @@ const Distribution = () => {
             </div>
           </div>
         </div>
-        <Modal
-          title="Создать новое распределение"
-          centered
-          open={modal}
-          onCancel={() => openModal(false)}
-          width={'50%'}
-          height={500}
-          footer={[
-            <Button style={{display: displayPrevBtn?'':'none'}} type="primary" onClick={() => prev()}>
-              {'Previos'}
-            </Button>,
-            <Button type="primary" onClick={() => {
-              current === steps.length - 1?openModal(false):next(); 
-              if(current > -1) {setDisplayPrevBtn(true)} else setDisplayPrevBtn(false)
-            }}>
-              {current === steps.length - 1?'Done':'Next'}
-            </Button>,
-          ]}
-        >
-          <Steps current={current} items={items} />
-          <div className="modalContent">{steps[current].content}</div>
-          <div
-            style={{
-              marginTop: 24,
-            }}
+          <Modal
+            title="Создать новое распределение"
+            centered
+            open={modal}
+            onCancel={() => openModal(false)}
+            width={'50%'}
+            footer={[
+              <Button style={{display: displayPrevBtn?'':'none'}} onClick={() => prev()}>
+                {'Previos'}
+              </Button>,
+              <Button type="primary" onClick={() => {
+                current === steps.length - 1?openModal(false):next(); 
+                if(current > -1) {setDisplayPrevBtn(true)} else setDisplayPrevBtn(false)
+              }}>
+                {current === steps.length - 1?'Done':'Next'}
+              </Button>,
+            ]}
           >
-            {/* {current < steps.length - 1 && (
-              <Button type="primary" onClick={() => next()}>
-                Next
-              </Button>
-            )}
-            {current === steps.length - 1 && (
-              <Button type="primary" onClick={() => message.success('Processing complete!')}>
-                Done
-              </Button>
-            )}
-            {current > 0 && (
-              <Button
-                style={{
-                  margin: '0 8px',
-                }}
-                onClick={() => prev()}
-              >
-                Previous
-              </Button>
-            )} */}
-          </div>
-        </Modal>
+            <Steps current={current} items={items} />
+            <div className="modalContent">{steps[current].content}</div>
+          </Modal>
       </div>
 
     </div>
@@ -162,7 +137,7 @@ const columns = [
   },
 ];
 
-let data = [
+const data = [
   {
     key: '1',
     name: 'John Brown',
@@ -249,10 +224,40 @@ let data = [
   },
 ];
 
+const props = {
+  name: 'file',
+  multiple: true,
+  action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
+  maxCount: 3,
+  onChange(info) {
+    const { status } = info.file;
+    if (status !== 'uploading') {
+      console.log(info.file, info.fileList);
+    }
+    if (status === 'done') {
+      message.success(`${info.file.name} file uploaded successfully.`);
+    } else if (status === 'error') {
+      message.error(`${info.file.name} file upload failed.`);
+    }
+  },
+  onDrop(e) {
+    console.log('Dropped files', e.dataTransfer.files);
+  },
+};
+
 const steps = [
   {
-    title: 'First',
-    content: 'First-content',
+    title: 'Добавьте распределение',
+    content: (
+      <div className="firstStep">
+        <Dragger {...props}>
+          <p className="ant-upload-drag-icon">
+            <InboxOutlined />
+          </p>
+          <p className="ant-upload-text">Click or drag file to this area to upload</p>
+        </Dragger>
+      </div>
+    ),
   },
   {
     title: 'Second',
@@ -263,5 +268,7 @@ const steps = [
     content: 'Last-content',
   },
 ];
+
+
 
 export default Distribution;

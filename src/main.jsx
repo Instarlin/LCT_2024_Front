@@ -6,6 +6,7 @@ import {
   RouterProvider, 
 } from "react-router-dom";
 import { Welcome, Registration, Distribution, ErrorPage, Sandbox, Analysis }  from "./pages";
+import { ConfigProvider } from 'antd'; 
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -34,6 +35,12 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <ConfigProvider theme={{
+    token: {
+    colorPrimary: '#00b96b',
+    }
+    }}>
+      <RouterProvider router={router} />
+    </ConfigProvider>
   </React.StrictMode>
 );

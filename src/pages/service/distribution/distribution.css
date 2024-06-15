@@ -37,7 +37,7 @@
   overflow: hidden;
   z-index: 2;
   transition: .2s;
-  background-color: #73d13d;
+  background-color: #00b96b;
 }
 
 .topBarBtn:hover {
@@ -81,20 +81,22 @@
   height: 80%;
 }
 
-/* .modal {
-  width: 60%;
-  height: 80%;
-} */
-
 .modalContent {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
   line-height: 260px;
   text-align: center;
   color: #000;
-  background-color: #ddd;
+  
   margin-top: 16px;
-  /* color: token.colorTextTertiary,
-  backgroundColor: token.colorFillAlter,
-  borderRadius: token.borderRadiusLG,
-  border: `1px dashed ${token.colorBorder}`,
-  marginTop: 16, */
+  padding: 20px 0 20px 0;
+  height: fit-content;
+  width: 100%;
+}
+
+.firstStep {
+  width: 100%;
+  /* background-color: #ddd; */
+  border-radius: 8px;
 }
