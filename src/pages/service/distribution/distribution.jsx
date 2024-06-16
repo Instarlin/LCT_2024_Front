@@ -119,7 +119,7 @@ const Distribution = () => {
   const handleValueSelection = (value) => setSelectedAlocationCategory(value);
 
   const getAlocations = async () => {
-    const response = await axios.get('http://192.144.13.15/api/alocation', {
+    const response = await axios.get('http://192.144.13.15/api/allocation', {
     headers: {
       "Authorization": `Bearer ${authToken.state.authToken}`,
     }});
@@ -127,14 +127,18 @@ const Distribution = () => {
   };
 
   const createAlocation = async (name) => {
-    const response = await axios.post('http://192.144.13.15/api/alocation', {
+    const response = await axios.post('http://192.144.13.15/api/allocation', {
       "name": name,
       "category_name": selectedAlocationCategory
     }, {
     headers: {
       "Authorization": `Bearer ${authToken.state.authToken}`,
     }});
-    console.log(response)
+    const getResponse = await axios.get('http://192.144.13.15/api/allocation', {}, {
+    headers: {
+      "Authorization": `Bearer ${authToken.state.authToken}`,
+    }});
+    console.log(getResponse)
   };
 
   const uploadBills = async ({file}) => {
