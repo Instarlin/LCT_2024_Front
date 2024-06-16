@@ -228,13 +228,8 @@ const Distribution = () => {
               {'Previous'}
             </Button>,
             <Button type="primary" onClick={() => {
-              current === stepsTitles.length - 1?() => {
-                openModal(false);
-                
-              }:next(); 
-              if(current > -1) {
-                setDisplayPrevBtn(true);
-              };
+              current === stepsTitles.length - 1?openModal(false):next();
+              if(current > -1) setDisplayPrevBtn(true);
               if(current === 0) createAlocation(distrName);
             }}>
               {current === stepsTitles.length - 1?'Done':'Next'}
