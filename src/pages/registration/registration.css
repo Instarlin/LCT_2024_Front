@@ -54,6 +54,7 @@
   font-family: "SB Sans Text";
   color: #000;
   background-color: #f0f0f0;
+  border: 1px solid #00b96b;
   letter-spacing: 0.5px;
   font-size: 18px;
   outline: none;
@@ -66,8 +67,12 @@
 }
 
 .leftFormWrapper input:hover {
-  background-color: #d8d8d8;
+  background-color: #e8e8e8;
   transition: .2s;
+}
+
+.passwordForm {
+  margin: 10px 0 8px 0 !important;
 }
 
 .formWrapper .leftFormWrapper .btn {
@@ -76,18 +81,18 @@
   align-items: center;
   font-family: "SB Sans Text";
   width: 320px;
-  background-color: #00b96b;
+  background-color: #20c77c;
   color: #000;
   margin: 50px 0 0 0;
   padding: 15px 0;
   font-size: 18px;
   font-weight: 600;
-  border-radius: 18px;
+  border-radius: 12px;
   cursor: pointer;
   transition: .25s;
 }
 .formWrapper .leftFormWrapper .btn:hover {
-  background-color: #24e07c;
+  background-color: #44d48e;
   transition: .25s;
   
 }
@@ -146,7 +151,9 @@
   transform: translate(-150%, -50%);
 }
 
-.counting, .distribution {
+.counting, .distribution, .moving {
+  font-family: "SB Sans Text";
+  font-weight: 400;
   object-fit: cover;
   background-size: contain;
   background-repeat: no-repeat;
@@ -158,7 +165,13 @@
 }
 
 .distribution {
+  background-size: 80%;
   background-image: url('../../assets//images/Group8.svg');
+}
+
+.moving {
+  background-size: 100%;
+  background-image: url('../../assets/images/IMG_0802.png');
 }
 
 @media (width < 430px) {

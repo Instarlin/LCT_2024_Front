@@ -6,7 +6,8 @@
 
 .boilerPlateWrapperAnalysis {
   width: 100%;
-  height: 120vh;
+  height: calc(100vh - 86px);
+  margin-top: 86px;
 }
 
 .boilerPlateHeader {

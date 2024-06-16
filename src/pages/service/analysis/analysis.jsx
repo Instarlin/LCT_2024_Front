@@ -2,11 +2,12 @@ import React, { useEffect } from "react";
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Header } from "../../../components";
-import { Link, ScrollRestoration } from "react-router-dom";
+import { Link, ScrollRestoration, useLocation } from "react-router-dom";
 import '../service.css';
 import './analysis.css';
 
 const Analysis = () => {
+  const authToken = useLocation();
 
   const handleScroll = () => {
     if(document.body.scrollTop > 50 || document.documentElement.scrollTop > 50) {
@@ -26,7 +27,7 @@ const Analysis = () => {
       <div id="headerWrapper">
         <Header/>
         <div className="boilerPlateHeader">
-            <Link style={{textDecoration: "none"}} className="headerLink" to={"/service/distribution"}>Распределения</Link>
+            <Link style={{textDecoration: "none"}} className="headerLink" to={"/service/distribution"} state={{authToken: authToken.state.authToken}}>Распределения</Link>
             <Link style={{textDecoration: "none"}} className="headerLink selected" to={"./"}>Анализ</Link>
         </div>
       </div>
