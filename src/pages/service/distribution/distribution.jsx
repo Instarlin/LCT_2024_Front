@@ -11,87 +11,21 @@ const { Dragger } = Upload;
 const data = [
   {
     key: '1',
-    name: 'John Brown',
-    category: 'efjewfli',
+    name: 'Распределение 1',
+    category: 'Новая категория 2',
     address: 'New York No. 1 Lake Park',
-    tags: ['nice', 'developer'],
   },
   {
     key: '2',
-    name: 'Jim Green',
-    age: 42,
+    name: 'Распределение 12',
+    category: 'Новая категория 2',
     address: 'London No. 1 Lake Park',
-    tags: ['loser'],
   },
   {
     key: '3',
-    name: 'Joe Black',
-    age: 32,
+    name: 'Распределение 3',
+    category: 'Новая категория 2',
     address: 'Sydney No. 1 Lake Park',
-    tags: ['cool', 'teacher'],
-  },
-  {
-    key: '4',
-    name: 'John Brown',
-    age: 32,
-    address: 'New York No. 1 Lake Park',
-    tags: ['nice', 'developer'],
-  },
-  {
-    key: '5',
-    name: 'Jim Green',
-    age: 42,
-    address: 'London No. 1 Lake Park',
-    tags: ['loser'],
-  },
-  {
-    key: '6',
-    name: 'Joe Black',
-    age: 32,
-    address: 'Sydney No. 1 Lake Park',
-    tags: ['cool', 'teacher'],
-  },
-  {
-    key: '7',
-    name: 'John Brown',
-    age: 32,
-    address: 'New York No. 1 Lake Park',
-    tags: ['nice', 'developer'],
-  },
-  {
-    key: '8',
-    name: 'Jim Green',
-    age: 42,
-    address: 'London No. 1 Lake Park',
-    tags: ['loser'],
-  },
-  {
-    key: '9',
-    name: 'Joe Black',
-    age: 32,
-    address: 'Sydney No. 1 Lake Park',
-    tags: ['cool', 'teacher'],
-  },
-  {
-    key: '10',
-    name: 'Joe Black',
-    age: 32,
-    address: 'Sydney No. 1 Lake Park',
-    tags: ['cool', 'teacher'],
-  },
-  {
-    key: '11',
-    name: 'Joe Black',
-    age: 32,
-    address: 'Sydney No. 1 Lake Park',
-    tags: ['cool', 'teacher'],
-  },
-  {
-    key: '12',
-    name: 'Joe Black',
-    age: 32,
-    address: 'Sydney No. 1 Lake Park',
-    tags: ['cool', 'teacher'],
   },
 ];
 
@@ -120,6 +54,8 @@ const Distribution = () => {
 
   const getAlocations = async () => {
     const response = await axios.get('http://192.144.13.15/api/allocation', {
+      "name": null
+    }, {
     headers: {
       "Authorization": `Bearer ${authToken.state.authToken}`,
     }});
@@ -127,23 +63,27 @@ const Distribution = () => {
   };
 
   const createAlocation = async (name) => {
-    const response = await axios.post('http://192.144.13.15/api/allocation', {
+    await axios.post('http://192.144.13.15/api/allocation', {
       "name": name,
       "category_name": selectedAlocationCategory
     }, {
     headers: {
       "Authorization": `Bearer ${authToken.state.authToken}`,
     }});
-    const getResponse = await axios.get('http://192.144.13.15/api/allocation', {}, {
+    const getResponse = await axios.get('http://192.144.13.15/api/allocation', {
+      "name": null
+    }, {
     headers: {
       "Authorization": `Bearer ${authToken.state.authToken}`,
     }});
-    console.log(getResponse)
+    getResponse.data.map(item => {if(item.name === name) setAllocID(item.alloc_id)})
+    console.log(getResponse.data)
   };
 
   const uploadBills = async ({file}) => {
     const formData = new FormData();
-    formData.append('alloc_id', '');
+    console.log(file)
+    formData.append('alloc_id', allocID);
     formData.append('bills_to_pay', file);
     const response = await fetch('http://192.144.13.15/api/bills', {
       method: 'POST',
@@ -206,6 +146,7 @@ const Distribution = () => {
       title: 'Распределение',
       dataIndex: 'distribution',
       key: 'distribution',
+      with: '20%',
       render: (text) => <a>{text}</a>,
     },
     {
@@ -213,7 +154,7 @@ const Distribution = () => {
       dataIndex: 'category',
       key: 'category',
       filters: filterOptions,
-      onFilter: (value, record) => record.name.indexOf(value) === 0,
+      onFilter: (value, record) => record.category.indexOf(value) === 0,
     },
     {
       title: 'Address',
@@ -349,7 +290,8 @@ const Distribution = () => {
                   onDrop(e) {
                     console.log('Dropped files', e.dataTransfer.files);
                   },
-                  customRequest: uploadBills
+                  customRequest: uploadBills,
+                  // action: 'http://192.144.13.15/api/bills/'
                   }}>
                   <p className="ant-upload-drag-icon">
                     <InboxOutlined />
@@ -407,6 +349,7 @@ const props = {
   name: 'file',
   multiple: true,
   maxCount: 3,
+  action: 'http://192.144.13.15/api/bills/',
   onChange(info) {
     const { status } = info.file;
     if (status !== 'uploading') {
