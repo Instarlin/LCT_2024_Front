@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Header } from "../../../components";
 import { Link, useLocation } from "react-router-dom";
-import { Table, Space, Tag, Modal, Steps, Button, Upload, Select, Input, Switch, message } from 'antd';
+import { Table, Space, Modal, Steps, Button, Upload, Select, Input, Switch, message } from 'antd';
 import { InboxOutlined, PlusOutlined, FileAddOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import '../service.css';
@@ -37,7 +37,7 @@ const Distribution = () => {
   const [distrName, setDistrName] = useState('');
   const [categoryName, setCategoryName] = useState('');
   const [selectedAlocationCategory, setSelectedAlocationCategory] = useState('');
-  const [allocID, setAllocID] = useState('');
+  const [allocID, setAllocID] = useState('No data');
   const [tags, setTags] = useState([]);
   const [tableData, setTableData] = useState(data);
   const authToken = useLocation();
@@ -54,12 +54,11 @@ const Distribution = () => {
 
   const getAlocations = async () => {
     const response = await axios.get('http://192.144.13.15/api/allocation', {
-      "name": null
-    }, {
-    headers: {
-      "Authorization": `Bearer ${authToken.state.authToken}`,
-    }});
-    console.log(response);
+      "name": null,
+      headers: {
+        "Authorization": `Bearer ${authToken.state.authToken}`,
+      }
+    });
   };
 
   const createAlocation = async (name) => {
@@ -67,42 +66,59 @@ const Distribution = () => {
       "name": name,
       "category_name": selectedAlocationCategory
     }, {
-    headers: {
-      "Authorization": `Bearer ${authToken.state.authToken}`,
+      headers: {
+        "Authorization": `Bearer ${authToken.state.authToken}`,
     }});
     const getResponse = await axios.get('http://192.144.13.15/api/allocation', {
-      "name": null
-    }, {
-    headers: {
-      "Authorization": `Bearer ${authToken.state.authToken}`,
+      "name": null,
+      headers: {
+        "Authorization": `Bearer ${authToken.state.authToken}`,
     }});
-    getResponse.data.map(item => {if(item.name === name) setAllocID(item.alloc_id)})
-    console.log(getResponse.data)
+    getResponse.data.map(item => {if(item.name == name) setAllocID(item.alloc_id)});
+  };
+
+  const deleteAllocation = async (name) => {
+    await axios.delete('http://192.144.13.15/api/allocation')
   };
 
   const uploadBills = async ({file}) => {
-    const formData = new FormData();
-    console.log(file)
-    formData.append('alloc_id', allocID);
-    formData.append('bills_to_pay', file);
-    const response = await fetch('http://192.144.13.15/api/bills', {
-      method: 'POST',
-      headers: {
-        "Authorization": `Bearer ${authToken.state.authToken}`,
-        "Content-Type": "multipart/form-data",
-      },
-      body: formData,
-    });
-    // const response = await axios({
-    //   method: 'post',
-    //   url: 'http://192.144.13.15/api/bills',
-    //   data: formData,
-    //   headers: {
-    //     "Content-Type": "multipart/form-data",
-    //     "Authorization": `Bearer ${authToken.state.authToken}`,
-    //   },
-    // });
-    console.log(response)
+    try {
+      const formData = new FormData();
+      formData.append('alloc_id', allocID);
+      formData.append('bills_to_pay', file);
+      const response = await axios.post('http://192.144.13.15/api/bills', formData, {
+        headers: {
+          "Authorization": `Bearer ${authToken.state.authToken}`,
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (event) => {
+        },
+      });
+      message.success(`${file.name} был успешно загружен.`)
+    } catch (e) {
+      console.log(e);
+      message.error(`Файл не был загружен.`);
+    }
+  };
+
+  const uploadRefs = async ({file}) => {
+    try {
+      const formData = new FormData();
+      formData.append('alloc_id', allocID);
+      formData.append('bills_to_pay', file);
+      const response = await axios.post('http://192.144.13.15/api/bills/refs', formData, {
+        headers: {
+          "Authorization": `Bearer ${authToken.state.authToken}`,
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (event) => {
+        },
+      });
+      message.success(`${file.name} был успешно загружен.`)
+    } catch (e) {
+      console.log(e);
+      message.error(`Файл не был загружен.`);
+    }
   };
 
   const getCategories = async () => {
@@ -157,12 +173,12 @@ const Distribution = () => {
       onFilter: (value, record) => record.category.indexOf(value) === 0,
     },
     {
-      title: 'Address',
+      title: 'Счета на полату',
       dataIndex: 'address',
       key: 'address',
     },
     {
-      title: 'Action',
+      title: 'Справочники',
       key: 'action',
       render: (_, record) => (
         <Space size="middle">
@@ -196,11 +212,7 @@ const Distribution = () => {
                 </div>
                 <h4 onClick={getAlocations}>Все распределения</h4>
                 {tags.map((tag, index) => (
-                  <h4 
-                  // onClick={e => {setTableData(
-                  //   data.filter(elem => elem.category.includes(tag))
-                  // ); console.log(tag)}}
-                  >{tag}</h4>
+                  <h4 key={index}>{tag}</h4>
                 ))}
                 <div className="bottomBtn" onClick={() => setCategoryModal(true)}>
                   <PlusOutlined style={{fontSize: 'large'}}/>
@@ -217,13 +229,15 @@ const Distribution = () => {
           title="Создать новое распределение"
           centered
           open={modal}
-          onCancel={() => openModal(false)}
+          onCancel={() => {
+            openModal(false);
+
+          }}
           width={'50%'}
           footer={[
             <Button style={{display: displayPrevBtn?'':'none'}} onClick={() => {
               prev();
               if(current < 2) {setDisplayPrevBtn(false)};
-              console.log(current )
             }}>
               {'Previous'}
             </Button>,
@@ -251,23 +265,13 @@ const Distribution = () => {
                   name: 'file',
                   multiple: true,
                   maxCount: 3,
-                  onChange(info) {
-                    const { status } = info.file;
-                    if (status !== 'uploading') {
-                      console.log(info.file, info.fileList);
-                    }
-                    if (status === 'done') {
-                      message.success(`${info.file.name} file uploaded successfully.`);
-                    } else if (status === 'error') {
-                      message.error(`${info.file.name} file upload failed.`);
-                    }
-                  },
+                  accept: '.xlsx',
+                  customRequest: uploadBills,
                   onDrop(e) {
                     console.log('Dropped files', e.dataTransfer.files);
                   },
-                  customRequest: uploadBills,
-                  // action: 'http://192.144.13.15/api/bills/'
-                  }}>
+                  format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
+                }}> 
                   <p className="ant-upload-drag-icon">
                     <InboxOutlined />
                   </p>
@@ -276,7 +280,18 @@ const Distribution = () => {
               </div>
             ),(
               <div className="stepWrapper">
-                <Dragger {...props}>
+                <Dragger {...{
+                  name: 'file',
+                  multiple: true,
+                  maxCount: 3,
+                  accept: '.xlsx',
+                  //* ---------------------------------------------------- here -----------------------------------------
+                  // customRequest: uploadRefs,
+                  onDrop(e) {
+                    console.log('Dropped files', e.dataTransfer.files);
+                  },
+                  format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
+                }}> 
                   <p className="ant-upload-drag-icon">
                     <InboxOutlined />
                   </p>
@@ -287,15 +302,15 @@ const Distribution = () => {
               <div className="fourthStep">
                 <div className={'element'}>
                   <Switch />
-                  <p>Подпись</p>
+                  <p>Настройка 1</p>
                 </div>
                 <div className={'element'}>
                   <Switch />
-                  <p>Подпись</p>
+                  <p>Настройка 2</p>
                 </div>
                 <div className={'element'}>
                   <Switch />
-                  <p>Подпись</p>
+                  <p>Настройка 3</p>
                 </div>
               </div>
             )][current]}
@@ -320,31 +335,10 @@ const Distribution = () => {
   );
 };
 
-const props = {
-  name: 'file',
-  multiple: true,
-  maxCount: 3,
-  action: 'http://192.144.13.15/api/bills/',
-  onChange(info) {
-    const { status } = info.file;
-    if (status !== 'uploading') {
-      console.log(info.file, info.fileList);
-    }
-    if (status === 'done') {
-      message.success(`${info.file.name} file uploaded successfully.`);
-    } else if (status === 'error') {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  },
-  onDrop(e) {
-    console.log('Dropped files', e.dataTransfer.files);
-  },
-};
-
 const stepsTitles = [
-  {title: 'Назовите распределение'},
+  {title: 'Название'},
   {title: 'Добавьте счета'},
-  {title: 'Загрузка 5'},
+  {title: 'Добавьте справочники'},
   {title: 'Настройки'},
 ];
 

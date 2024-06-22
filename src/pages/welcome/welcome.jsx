@@ -39,7 +39,7 @@ const Welcome = () => {
         <div className="leftWrapper">
           <div className="topHeading">
             <h1>Сервис для распределения и расчета </h1>
-            <h1>эффективности рассходов</h1>
+            <h1>эффективности расходов</h1>
           </div>
           <div className="heading">
             <h3>Поддержка контроля и прогнозирование,</h3>
