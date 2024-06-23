@@ -1,33 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Header } from "../../../components";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, redirect } from "react-router-dom";
 import { Table, Space, Modal, Steps, Button, Upload, Select, Input, Switch, message } from 'antd';
-import { InboxOutlined, PlusOutlined, FileAddOutlined } from '@ant-design/icons';
+import { InboxOutlined, PlusOutlined, FileAddOutlined, UploadOutlined, SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import '../service.css';
 import './distribution.css'
 const { Dragger } = Upload;
-
-const data = [
-  {
-    key: '1',
-    name: 'Распределение 1',
-    category: 'Новая категория 2',
-    address: 'New York No. 1 Lake Park',
-  },
-  {
-    key: '2',
-    name: 'Распределение 12',
-    category: 'Новая категория 2',
-    address: 'London No. 1 Lake Park',
-  },
-  {
-    key: '3',
-    name: 'Распределение 3',
-    category: 'Новая категория 2',
-    address: 'Sydney No. 1 Lake Park',
-  },
-];
 
 const Distribution = () => {
   const [modal, openModal] = useState(false);
@@ -37,28 +16,36 @@ const Distribution = () => {
   const [distrName, setDistrName] = useState('');
   const [categoryName, setCategoryName] = useState('');
   const [selectedAlocationCategory, setSelectedAlocationCategory] = useState('');
-  const [allocID, setAllocID] = useState('No data');
+  const [allocID, setAllocID] = useState('');
   const [tags, setTags] = useState([]);
-  const [tableData, setTableData] = useState(data);
+  const [tableData, setTableData] = useState([]);
   const authToken = useLocation();
 
   const next = () => setCurrent(current + 1);
   const prev = () => setCurrent(current - 1);
   
-  const items = stepsTitles.map((item) => ({
-    key: item.title,
-    title: item.title,
-  }));
-
   const handleValueSelection = (value) => setSelectedAlocationCategory(value);
 
   const getAlocations = async () => {
-    const response = await axios.get('http://192.144.13.15/api/allocation', {
-      "name": null,
-      headers: {
-        "Authorization": `Bearer ${authToken.state.authToken}`,
-      }
-    });
+    try {
+      const response = await axios.get('http://192.144.13.15/api/allocation', {
+        "name": null,
+        headers: {
+          "Authorization": `Bearer ${authToken.state.authToken}`,
+        }
+      });
+      const tableList = response.data.map((value) => ({
+        key: value.alloc_id,
+        distribution: value.name,
+        category: value.alloc_id,
+        analys: value.user_id
+      }));
+      setTableData(tableList);
+    } catch (e) {
+      message.error(`${e.response?.data?.detail || "Error occurred"}`);
+      if(e.response?.status == 401) redirect("/registration");
+      console.log(e);
+    };
   };
 
   const createAlocation = async (name) => {
@@ -69,16 +56,24 @@ const Distribution = () => {
       headers: {
         "Authorization": `Bearer ${authToken.state.authToken}`,
     }});
-    const getResponse = await axios.get('http://192.144.13.15/api/allocation', {
+    const response = await axios.get('http://192.144.13.15/api/allocation', {
       "name": null,
       headers: {
         "Authorization": `Bearer ${authToken.state.authToken}`,
     }});
-    getResponse.data.map(item => {if(item.name == name) setAllocID(item.alloc_id)});
+    response.data.map(item => {if(item.name == name) setAllocID(item.alloc_id)});
+    console.log(response)
   };
 
-  const deleteAllocation = async (name) => {
-    await axios.delete('http://192.144.13.15/api/allocation')
+  const deleteAllocation = async () => {
+    await axios.delete('http://192.144.13.15/api/allocation/delete_by_id', {
+      data: {
+        "allocation_id": allocID,
+      },
+      headers: {
+        "Authorization": `Bearer ${authToken.state.authToken}`,
+      }
+    });
   };
 
   const uploadBills = async ({file}) => {
@@ -86,12 +81,13 @@ const Distribution = () => {
       const formData = new FormData();
       formData.append('alloc_id', allocID);
       formData.append('bills_to_pay', file);
-      const response = await axios.post('http://192.144.13.15/api/bills', formData, {
+      await axios.post('http://192.144.13.15/api/bills', formData, {
         headers: {
           "Authorization": `Bearer ${authToken.state.authToken}`,
           "Content-Type": "multipart/form-data",
         },
         onUploadProgress: (event) => {
+          console.log(event)
         },
       });
       message.success(`${file.name} был успешно загружен.`)
@@ -101,12 +97,12 @@ const Distribution = () => {
     }
   };
 
-  const uploadRefs = async ({file}) => {
+  const uploadRefs = async ({file}, type) => {
     try {
       const formData = new FormData();
       formData.append('alloc_id', allocID);
-      formData.append('bills_to_pay', file);
-      const response = await axios.post('http://192.144.13.15/api/bills/refs', formData, {
+      formData.append(type, file);
+      await axios.post('http://192.144.13.15/api/bills/refs', formData, {
         headers: {
           "Authorization": `Bearer ${authToken.state.authToken}`,
           "Content-Type": "multipart/form-data",
@@ -157,13 +153,88 @@ const Distribution = () => {
     }
   });
 
+  const items = stepsTitles.map((item) => ({
+    key: item.title,
+    title: item.title,
+  }));
+
+  const searchInput = useRef(null);
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+      <div
+        style={{
+          padding: 8,
+        }}
+        onKeyDown={(e) => e.stopPropagation()}
+      >
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{
+            marginBottom: 8,
+            display: 'block',
+          }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{
+              width: 90,
+            }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => {
+              clearFilters();
+              setSearchText('');
+              handleSearch(selectedKeys, confirm, dataIndex);
+            }}
+            size="small"
+            style={{
+              width: 90,
+            }}
+          >
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined
+        style={{
+          color: filtered ? '#027540' : undefined,
+        }}
+      />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+    onFilterDropdownOpenChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
+      }
+    },
+  });
+
   const columns = [
     {
       title: 'Распределение',
       dataIndex: 'distribution',
       key: 'distribution',
-      with: '20%',
-      render: (text) => <a>{text}</a>,
+      ...getColumnSearchProps('distribution'),
     },
     {
       title: 'Категория',
@@ -173,17 +244,16 @@ const Distribution = () => {
       onFilter: (value, record) => record.category.indexOf(value) === 0,
     },
     {
-      title: 'Счета на полату',
-      dataIndex: 'address',
-      key: 'address',
+      title: 'Анализ',
+      dataIndex: 'analys',
+      key: 'analys',
     },
     {
-      title: 'Справочники',
-      key: 'action',
+      title: 'Предсказание',
+      key: 'prediction',
       render: (_, record) => (
         <Space size="middle">
-          <a>Invite {record.name}</a>
-          <a>Delete</a>
+          <Link to={'/service/analysis'} state={{authToken: authToken.state.authToken, id: record.key}}>Предсказание {record.distribution}</Link>
         </Space>
       ),
     },
@@ -210,10 +280,10 @@ const Distribution = () => {
                   <FileAddOutlined />
                   <h3>Добавить распределение</h3>
                 </div>
-                <h4 onClick={getAlocations}>Все распределения</h4>
+                {/* <h4 onClick={getAlocations}>Все распределения</h4>
                 {tags.map((tag, index) => (
                   <h4 key={index}>{tag}</h4>
-                ))}
+                ))} */}
                 <div className="bottomBtn" onClick={() => setCategoryModal(true)}>
                   <PlusOutlined style={{fontSize: 'large'}}/>
                   <h4>Создать категорию</h4>
@@ -231,21 +301,31 @@ const Distribution = () => {
           open={modal}
           onCancel={() => {
             openModal(false);
-
+            deleteAllocation();
+            handleValueSelection('');
+            setDistrName('');
+            setCurrent(0);
           }}
           width={'50%'}
           footer={[
-            <Button style={{display: displayPrevBtn?'':'none'}} onClick={() => {
-              prev();
-              if(current < 2) {setDisplayPrevBtn(false)};
-            }}>
+            <Button 
+              style={{display: displayPrevBtn?'':'none'}}
+              onClick={() => {
+                prev();
+                if(current < 2) {setDisplayPrevBtn(false)};
+              }}
+            >
               {'Previous'}
             </Button>,
-            <Button type="primary" onClick={() => {
-              current === stepsTitles.length - 1?openModal(false):next();
-              if(current > -1) setDisplayPrevBtn(true);
-              if(current === 0) createAlocation(distrName);
-            }}>
+            <Button 
+              type="primary"
+              disabled={(distrName !== '' && selectedAlocationCategory !== '')?false:true}
+              onClick={() => {
+                current === stepsTitles.length - 1?openModal(false):next();
+                if(current > -1) setDisplayPrevBtn(true);
+                if(current === 0) createAlocation(distrName);
+              }}
+            >
               {current === stepsTitles.length - 1?'Done':'Next'}
             </Button>,
           ]}
@@ -271,7 +351,7 @@ const Distribution = () => {
                     console.log('Dropped files', e.dataTransfer.files);
                   },
                   format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
-                }}> 
+                }}>
                   <p className="ant-upload-drag-icon">
                     <InboxOutlined />
                   </p>
@@ -280,23 +360,21 @@ const Distribution = () => {
               </div>
             ),(
               <div className="stepWrapper">
-                <Dragger {...{
+                <Upload {...{
                   name: 'file',
-                  multiple: true,
-                  maxCount: 3,
-                  accept: '.xlsx',
-                  //* ---------------------------------------------------- here -----------------------------------------
-                  // customRequest: uploadRefs,
-                  onDrop(e) {
-                    console.log('Dropped files', e.dataTransfer.files);
+                  onChange(info) {
+                    if (info.file.status !== 'uploading') {
+                      console.log(info.file, info.fileList);
+                    }
+                    if (info.file.status === 'done') {
+                      message.success(`${info.file.name} file uploaded successfully`);
+                    } else if (info.file.status === 'error') {
+                      message.error(`${info.file.name} file upload failed.`);
+                    }
                   },
-                  format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
-                }}> 
-                  <p className="ant-upload-drag-icon">
-                    <InboxOutlined />
-                  </p>
-                  <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                </Dragger>
+                }}>
+                  <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                </Upload>
               </div>
             ),(
               <div className="fourthStep">

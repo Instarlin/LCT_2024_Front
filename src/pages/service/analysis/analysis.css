@@ -1,16 +1,47 @@
 #headerWrapper {
   position: fixed;
   top: 0px;
-  transition: .3s;
+  transition: .2s;
+  z-index: 1;
 }
 
 .boilerPlateWrapperAnalysis {
   width: 100%;
-  height: calc(100vh - 86px);
-  margin-top: 86px;
+  height: auto;
+  padding-top: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  background: #fff;
+}
+
+.boilerPlateWrapperAnalysisLoad {
+  width: 100%;
+  height: calc(100vh - 140px);
+  padding-top: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  background: radial-gradient(circle at 70% 70%, #17C166 0%, #0F8B49 36%, #106839 68%, #0a592fec 84%, #0a6c38cc 100%);
 }
 
 .boilerPlateHeader {
   font-family: "SB Sans Display Semibold";
 }
 
+.searchHeader {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  height: 50px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.containerChart {
+  background-color: #fff;
+  padding: 30px 50px 0 20px;
+  height: 300px;
+  z-index: 0;
+}

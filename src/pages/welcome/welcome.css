@@ -3,7 +3,7 @@
   justify-content: space-between;
   align-items: center;
   min-height: 100vh;
-  overflow: hidden;
+  overflow-x: hidden;
   background: radial-gradient(circle at 70% 70%, #17C166 0%, #0F8B49 36%, #106839 68%, #0a592fec 84%, #0a6c38cc 100%);
 }
 
@@ -101,7 +101,6 @@
   background-repeat: no-repeat;
   bottom: 0;
   z-index: 4;
-  
 }
 
 .rightWrapper .girl {

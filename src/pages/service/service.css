@@ -1,9 +1,8 @@
 .boilerPlateWrapper {
   display: flex;
-  justify-content: space-around;
-  align-items: center;
+  justify-content: start;
   text-align: center;
-  background: radial-gradient(circle at 70% 70%, #17C166 0%, #0F8B49 36%, #106839 68%, #0a592fec 84%, #0a6c38cc 100%);
+  background-color: #fff;
 }
 
 .boilerPlateHeader {
