@@ -53,8 +53,6 @@ const data = [
   },
 ];
 
-const getPanelValue = (searchText) => !searchText ? [] : [mockVal(searchText), mockVal(searchText, 2), mockVal(searchText, 3)];
-
 const Analysis = () => {
   const history = useLocation();
   const [isLoading, setIsLoading] = useState(true);
@@ -66,8 +64,18 @@ const Analysis = () => {
     const res = await axios()
   }
 
-  const hadleSearchChange = async () => {
-    const res = await axios()
+  const hadleSearchChange = async (value) => {
+    console.log(searchInputValue, history.state.id, selectedOption)
+    const res = await axios.post('http://192.144.13.15/api/predict/search', {
+      "content": value,
+      "alloc_id": history.state.id,
+      "search_atribute": selectedOption,
+      }, {
+      headers: {
+        "Authorization": `Bearer ${history.state.authToken}`,
+      }
+    });
+    setSearchOptions([...res.data.map(item => {return {value: item.content}})]);
   }
 
   const handleScroll = () => {
@@ -80,7 +88,7 @@ const Analysis = () => {
 
   useEffect(() => {
     window.onscroll = () => handleScroll();
-    setTimeout(() => setIsLoading(false), 800);
+    setTimeout(() => setIsLoading(false), 0);
   }, [])
 
   return (
@@ -101,10 +109,9 @@ const Analysis = () => {
               size="large"
               value={searchInputValue}
               style={{ width: 230 }}
-              onSearch={(text) => setSearchOptions(getPanelValue(text))}
               onChange={(value) => {
                 setSearchInputValue(value);
-                hadleSearchChange;
+                hadleSearchChange(value);
               }}
             />
           </div>

@@ -68,10 +68,10 @@ const Distribution = () => {
     console.log(response)
   };
 
-  const processAllocation = async (alloc_id) => {
-    console.log(alloc_id)
+  const processAllocation = async () => {
+    console.log(allocID)
     const res = axios.post('http://192.144.13.15/api/allocation/process', {
-      "allocation_id": alloc_id,
+      "allocation_id": allocID,
       "rules": {},
       headers: {
         "Authorization": `Bearer ${authToken.state.authToken}`,
@@ -261,7 +261,7 @@ const Distribution = () => {
 
   const columns = [
     {
-      title: 'Распределение',
+      title: 'Название распределение',
       dataIndex: 'distribution',
       key: 'distribution',
       ...getColumnSearchProps('distribution'),
@@ -274,20 +274,20 @@ const Distribution = () => {
       onFilter: (value, record) => record.category.indexOf(value) === 0,
     },
     {
-      title: 'Анализ',
+      title: 'Распределение',
       dataIndex: 'analys',
       key: 'analys',
       render: (_, record) => (
-        <Button onClick={() => downloadAllocation(record.key)}>Анализ распределения</Button>
+        <Button onClick={() => downloadAllocation(record.key)}>Скачать распределение</Button>
       )
     },
     {
-      title: 'Предсказание',
+      title: 'Анализ',
       key: 'prediction',
       render: (_, record) => (
-        <Space size="middle">
-          <Link to={'/service/analysis'} state={{authToken: authToken.state.authToken, id: record.key}}>Предсказание {record.distribution}</Link>
-        </Space>
+        <Button>
+          <Link to={'/service/analysis'} state={{authToken: authToken.state.authToken, id: record.key}}>Анализ {record.distribution}</Link>
+        </Button>
       ),
     },
   ];
@@ -354,7 +354,11 @@ const Distribution = () => {
               type="primary"
               disabled={(distrName !== '' && selectedAlocationCategory !== '')?false:true}
               onClick={() => {
-                current === stepsTitles.length - 1?openModal(false):next();
+                current === stepsTitles.length - 1?() => {
+                  openModal(false);
+                  processAllocation();
+                  getAlocations();
+                }:next();
                 if(current > -1) setDisplayPrevBtn(true);
                 if(current === 0) createAlocation(distrName);
               }}
@@ -398,6 +402,7 @@ const Distribution = () => {
                     name: 'fixedassets',
                     maxCount: 1,
                     accept: '.xlsx',
+                    showUploadList: false,
                     customRequest: uploadRefs,
                     onDrop() {
                       setFileType('fixedassets')
@@ -415,6 +420,7 @@ const Distribution = () => {
                     name: 'building_squares',
                     maxCount: 1,
                     accept: '.xlsx',
+                    showUploadList: false,
                     customRequest: uploadRefs,
                     onDrop() {
                       setFileType('building_squares')
@@ -432,6 +438,7 @@ const Distribution = () => {
                     name: 'codes',
                     maxCount: 1,
                     accept: '.xlsx',
+                    showUploadList: false,
                     customRequest: uploadRefs,
                     onDrop() {
                       setFileType('codes')
@@ -449,6 +456,7 @@ const Distribution = () => {
                     name: 'contracts_to_building',
                     maxCount: 1,
                     accept: '.xlsx',
+                    showUploadList: false,
                     customRequest: uploadRefs,
                     onDrop() {
                       setFileType('contracts_to_building')
@@ -466,6 +474,7 @@ const Distribution = () => {
                     name: 'contacts',
                     maxCount: 1,
                     accept: '.xlsx',
+                    showUploadList: false,
                     customRequest: uploadRefs,
                     onDrop() {
                       setFileType('contacts')
