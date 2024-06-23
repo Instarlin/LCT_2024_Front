@@ -65,32 +65,45 @@ const Distribution = () => {
         "Authorization": `Bearer ${authToken.state.authToken}`,
     }});
     response.data.map(item => {if(item.name == name) setAllocID(item.alloc_id)});
-    console.log(response)
   };
 
   const processAllocation = async () => {
-    console.log(allocID)
     const res = axios.post('http://192.144.13.15/api/allocation/process', {
       "allocation_id": allocID,
-      "rules": {},
+      "rules": {},},{
       headers: {
         "Authorization": `Bearer ${authToken.state.authToken}`,
       }
     })
-    console.log(res);
   }
 
   const downloadAllocation = async (alloc_id) => {
     console.log(alloc_id, authToken.state.authToken)
-    const res = await axios.post('http://192.144.13.15/api/allocation/download', {
+    await axios.post('http://192.144.13.15/api/allocation/download', {
       "allocation_id": alloc_id,
       "xlsx_or_csv": false,
+      responseType: 'blob',
       }, {
       headers: {
         "Authorization": `Bearer ${authToken.state.authToken}`,
       }
+    }).then((response) => {
+      console.log(response)
+      const blobUrl = URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = 'result.xlsx';
+      document.body.appendChild(link);
+      link.dispatchEvent(
+        new MouseEvent('click', { 
+          bubbles: true, 
+          cancelable: true, 
+          view: window 
+        })
+      );
+      document.body.removeChild(link);
     })
-    console.log(res);
+
   }
 
   const deleteAllocation = async () => {
@@ -115,7 +128,6 @@ const Distribution = () => {
           "Content-Type": "multipart/form-data",
         },
         onUploadProgress: (event) => {
-          console.log(event)
         },
       });
       message.success(`${file.name} был успешно загружен.`)
@@ -137,14 +149,11 @@ const Distribution = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log(file, fileType)
-      console.log(res)
       message.success(`${file.name} был успешно загружен.`)
     } catch (e) {
       console.log(e);
       message.error(`Файл не был загружен.`);
     }
-    
   };
 
   const getCategories = async () => {
@@ -313,10 +322,6 @@ const Distribution = () => {
                   <FileAddOutlined />
                   <h3>Добавить распределение</h3>
                 </div>
-                {/* <h4 onClick={getAlocations}>Все распределения</h4>
-                {tags.map((tag, index) => (
-                  <h4 key={index}>{tag}</h4>
-                ))} */}
                 <div className="bottomBtn" onClick={() => setCategoryModal(true)}>
                   <PlusOutlined style={{fontSize: 'large'}}/>
                   <h4>Создать категорию</h4>
@@ -354,11 +359,13 @@ const Distribution = () => {
               type="primary"
               disabled={(distrName !== '' && selectedAlocationCategory !== '')?false:true}
               onClick={() => {
-                current === stepsTitles.length - 1?() => {
+                if(current === stepsTitles.length - 1) {
                   openModal(false);
                   processAllocation();
                   getAlocations();
-                }:next();
+                } else {
+                  next()
+                };
                 if(current > -1) setDisplayPrevBtn(true);
                 if(current === 0) createAlocation(distrName);
               }}
@@ -384,9 +391,6 @@ const Distribution = () => {
                   maxCount: 3,
                   accept: '.xlsx',
                   customRequest: uploadBills,
-                  onDrop(e) {
-                    console.log('Dropped files', e.dataTransfer.files);
-                  },
                   format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
                 }}>
                   <p className="ant-upload-drag-icon">
@@ -400,11 +404,12 @@ const Distribution = () => {
                 <div>
                   <Dragger {...{
                     name: 'fixedassets',
+                    multiple: false,
                     maxCount: 1,
                     accept: '.xlsx',
                     showUploadList: false,
                     customRequest: uploadRefs,
-                    onDrop() {
+                    onChange() {
                       setFileType('fixedassets')
                     },
                     format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
@@ -422,7 +427,7 @@ const Distribution = () => {
                     accept: '.xlsx',
                     showUploadList: false,
                     customRequest: uploadRefs,
-                    onDrop() {
+                    onChange() {
                       setFileType('building_squares')
                     },
                     format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
@@ -440,7 +445,7 @@ const Distribution = () => {
                     accept: '.xlsx',
                     showUploadList: false,
                     customRequest: uploadRefs,
-                    onDrop() {
+                    onChange() {
                       setFileType('codes')
                     },
                     format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
@@ -458,7 +463,7 @@ const Distribution = () => {
                     accept: '.xlsx',
                     showUploadList: false,
                     customRequest: uploadRefs,
-                    onDrop() {
+                    onChange() {
                       setFileType('contracts_to_building')
                     },
                     format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
@@ -476,7 +481,7 @@ const Distribution = () => {
                     accept: '.xlsx',
                     showUploadList: false,
                     customRequest: uploadRefs,
-                    onDrop() {
+                    onChange() {
                       setFileType('contacts')
                     },
                     format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
