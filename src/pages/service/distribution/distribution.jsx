@@ -20,6 +20,8 @@ const Distribution = () => {
   const [tags, setTags] = useState([]);
   const [tableData, setTableData] = useState([]);
   const authToken = useLocation();
+  const [searchText, setSearchText] = useState('');
+  const [searchedColumn, setSearchedColumn] = useState('');
 
   const next = () => setCurrent(current + 1);
   const prev = () => setCurrent(current - 1);

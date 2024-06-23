@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Spin, Input, Select, Button } from 'antd';
+import { Spin, Input, Select, Button, AutoComplete } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Header } from "../../../components";
 import { Link, ScrollRestoration, useLocation } from "react-router-dom";
 import { LineChart, XAxis, Line, Tooltip, CartesianGrid, ResponsiveContainer, YAxis, Legend, AreaChart, Area } from "recharts";
-const { Search } = Input;
+import axios from 'axios';
 import '../service.css';
 import './analysis.css';
 
@@ -53,10 +53,22 @@ const data = [
   },
 ];
 
+const getPanelValue = (searchText) => !searchText ? [] : [mockVal(searchText), mockVal(searchText, 2), mockVal(searchText, 3)];
+
 const Analysis = () => {
   const history = useLocation();
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedOption, setSelectedoption] = useState('');
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [searchInputValue, setSearchInputValue] = useState(null);
+  const [seacrhOptions, setSearchOptions] = useState([]);
+
+  const handleRequest = async () => {
+    const res = await axios()
+  }
+
+  const hadleSearchChange = async () => {
+    const res = await axios()
+  }
 
   const handleScroll = () => {
     if(document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
@@ -82,17 +94,26 @@ const Analysis = () => {
         </div>
         <div className="boilerPlateHeader searchHeader">
           <div className="searchWrapper">
-            <Input
-              placeholder="Счет главной книги"
+            <AutoComplete
+              placeholder="Значение..."
               allowClear
+              options={seacrhOptions}
               size="large"
+              value={searchInputValue}
+              style={{ width: 230 }}
+              onSearch={(text) => setSearchOptions(getPanelValue(text))}
+              onChange={(value) => {
+                setSearchInputValue(value);
+                hadleSearchChange;
+              }}
             />
           </div>
           <Select
-            placeholder="Поиск..."
-            style={{ width: 220 }}
+            placeholder="Атрибут поиска..."
+            style={{ width: 230 }}
             size="large"
             value={selectedOption}
+            onChange={(value) => setSelectedOption(value)}
             options={[
               { value: 'building', label: 'Поиск по зданим' },
               { value: 'main_ledger_id', label: 'Счет главной книги' },
@@ -100,7 +121,7 @@ const Analysis = () => {
               { value: 'fixed_assets_class', label: 'Класс основных средств' },
             ]}
           />
-          <Button type="primary" size="large">Поиск</Button>
+          <Button type="primary" size="large" disabled={selectedOption === null ? true : false} onClick={handleRequest}>Поиск</Button>
         </div>
       </div>
       <div className={`${isLoading?'boilerPlateWrapperAnalysisLoad':'boilerPlateWrapperAnalysis'}`}>
