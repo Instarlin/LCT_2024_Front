@@ -7,16 +7,7 @@ import { useEffect, useState } from 'react';
 const Welcome = () => {
   const [isLoaded, setIsloaded] = useState(false);
 
-  // () => document.fonts.ready.then((FontFaceSet) => {
-  //   console.log(FontFaceSet)
-  //   console.log(FontFaceSet.map((f) => f.status))
-  // })
-
   const loadFonts = () => {
-    document.fonts.onloadingdone = () => {
-      console.log("Font loading complete");
-    };
-    
     (async () => {
       await document.fonts.load("16px SB Sans Text");
       await document.fonts.load("16px SB Sans Display Semibold");

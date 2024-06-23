@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Header } from "../../../components";
 import { Link, useLocation, redirect } from "react-router-dom";
 import { Table, Space, Modal, Steps, Button, Upload, Select, Input, Switch, message } from 'antd';
-import { InboxOutlined, PlusOutlined, FileAddOutlined, UploadOutlined, SearchOutlined } from '@ant-design/icons';
+import { InboxOutlined, PlusOutlined, FileAddOutlined, CloudUploadOutlined, SearchOutlined, ForkOutlined, FileTextOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import '../service.css';
 import './distribution.css'
@@ -15,10 +15,11 @@ const Distribution = () => {
   const [displayPrevBtn, setDisplayPrevBtn] = useState(false);
   const [distrName, setDistrName] = useState('');
   const [categoryName, setCategoryName] = useState('');
-  const [selectedAlocationCategory, setSelectedAlocationCategory] = useState('');
+  const [selectedAlocationCategory, setSelectedAlocationCategory] = useState(null);
   const [allocID, setAllocID] = useState('');
   const [tags, setTags] = useState([]);
   const [tableData, setTableData] = useState([]);
+  const [fileType, setFileType] = useState('');
   const authToken = useLocation();
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
@@ -39,7 +40,7 @@ const Distribution = () => {
       const tableList = response.data.map((value) => ({
         key: value.alloc_id,
         distribution: value.name,
-        category: value.alloc_id,
+        category: value.category_name,
         analys: value.user_id
       }));
       setTableData(tableList);
@@ -97,26 +98,28 @@ const Distribution = () => {
       console.log(e);
       message.error(`Файл не был загружен.`);
     }
+    
   };
 
-  const uploadRefs = async ({file}, type) => {
+  const uploadRefs = async ({file}) => {
     try {
       const formData = new FormData();
       formData.append('alloc_id', allocID);
-      formData.append(type, file);
-      await axios.post('http://192.144.13.15/api/bills/refs', formData, {
+      formData.append(fileType, file);
+      const res = await axios.post('http://192.144.13.15/api/bills/refs', formData, {
         headers: {
           "Authorization": `Bearer ${authToken.state.authToken}`,
           "Content-Type": "multipart/form-data",
         },
-        onUploadProgress: (event) => {
-        },
       });
+      console.log(file, fileType)
+      console.log(res)
       message.success(`${file.name} был успешно загружен.`)
     } catch (e) {
       console.log(e);
       message.error(`Файл не был загружен.`);
     }
+    
   };
 
   const getCategories = async () => {
@@ -361,22 +364,92 @@ const Distribution = () => {
                 </Dragger>
               </div>
             ),(
-              <div className="stepWrapper">
-                <Upload {...{
-                  name: 'file',
-                  onChange(info) {
-                    if (info.file.status !== 'uploading') {
-                      console.log(info.file, info.fileList);
-                    }
-                    if (info.file.status === 'done') {
-                      message.success(`${info.file.name} file uploaded successfully`);
-                    } else if (info.file.status === 'error') {
-                      message.error(`${info.file.name} file upload failed.`);
-                    }
-                  },
-                }}>
-                  <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                </Upload>
+              <div className="thirdStep">
+                <div>
+                  <Dragger {...{
+                    name: 'fixedassets',
+                    maxCount: 1,
+                    accept: '.xlsx',
+                    customRequest: uploadRefs,
+                    onDrop() {
+                      setFileType('fixedassets')
+                    },
+                    format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
+                  }}>
+                    <p className="ant-upload-drag-icon">
+                    <CloudUploadOutlined />
+                    </p>
+                    <p className="ant-upload-text">Основные средства</p>
+                  </Dragger>
+                </div>
+                <div>
+                  <Dragger {...{
+                    name: 'building_squares',
+                    maxCount: 1,
+                    accept: '.xlsx',
+                    customRequest: uploadRefs,
+                    onDrop() {
+                      setFileType('building_squares')
+                    },
+                    format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
+                  }}>
+                    <p className="ant-upload-drag-icon">
+                    <FileTextOutlined />
+                    </p>
+                    <p className="ant-upload-text">Площади зданий</p>
+                  </Dragger>
+                </div>
+                <div style={{flex: 1}}>
+                  <Dragger {...{
+                    name: 'codes',
+                    maxCount: 1,
+                    accept: '.xlsx',
+                    customRequest: uploadRefs,
+                    onDrop() {
+                      setFileType('codes')
+                    },
+                    format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
+                  }}>
+                    <p className="ant-upload-drag-icon">
+                      <InboxOutlined />
+                    </p>
+                    <p className="ant-upload-text">Коды услуг</p>
+                  </Dragger>
+                </div>
+                <div>
+                  <Dragger {...{
+                    name: 'contracts_to_building',
+                    maxCount: 1,
+                    accept: '.xlsx',
+                    customRequest: uploadRefs,
+                    onDrop() {
+                      setFileType('contracts_to_building')
+                    },
+                    format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
+                  }}>
+                    <p className="ant-upload-drag-icon">
+                    <ForkOutlined />
+                    </p>
+                    <p className="ant-upload-text">Связь договор - здания</p>
+                  </Dragger>
+                </div>
+                <div>
+                  <Dragger {...{
+                    name: 'contacts',
+                    maxCount: 1,
+                    accept: '.xlsx',
+                    customRequest: uploadRefs,
+                    onDrop() {
+                      setFileType('contacts')
+                    },
+                    format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
+                  }}>
+                    <p className="ant-upload-drag-icon">
+                    <FileAddOutlined />
+                    </p>
+                    <p className="ant-upload-text">Документы</p>
+                  </Dragger>
+                </div>
               </div>
             ),(
               <div className="fourthStep">

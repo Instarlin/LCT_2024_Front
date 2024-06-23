@@ -131,6 +131,19 @@
   width: 100%;
 }
 
+.thirdStep {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  height: fit-content;
+  width: 100%;
+  gap: 20px;
+}
+
+.thirdStep div {
+  margin: 0;
+}
+
 .fourthStep .element {
   display: flex;
   flex-direction: row;
