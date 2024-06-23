@@ -68,6 +68,31 @@ const Distribution = () => {
     console.log(response)
   };
 
+  const processAllocation = async (alloc_id) => {
+    console.log(alloc_id)
+    const res = axios.post('http://192.144.13.15/api/allocation/process', {
+      "allocation_id": alloc_id,
+      "rules": {},
+      headers: {
+        "Authorization": `Bearer ${authToken.state.authToken}`,
+      }
+    })
+    console.log(res);
+  }
+
+  const downloadAllocation = async (alloc_id) => {
+    console.log(alloc_id, authToken.state.authToken)
+    const res = await axios.post('http://192.144.13.15/api/allocation/download', {
+      "allocation_id": alloc_id,
+      "xlsx_or_csv": false,
+      }, {
+      headers: {
+        "Authorization": `Bearer ${authToken.state.authToken}`,
+      }
+    })
+    console.log(res);
+  }
+
   const deleteAllocation = async () => {
     await axios.delete('http://192.144.13.15/api/allocation/delete_by_id', {
       data: {
@@ -252,6 +277,9 @@ const Distribution = () => {
       title: 'Анализ',
       dataIndex: 'analys',
       key: 'analys',
+      render: (_, record) => (
+        <Button onClick={() => downloadAllocation(record.key)}>Анализ распределения</Button>
+      )
     },
     {
       title: 'Предсказание',
