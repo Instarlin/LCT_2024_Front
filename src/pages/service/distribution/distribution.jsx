@@ -23,6 +23,7 @@ const Distribution = () => {
   const authToken = useLocation();
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
+  const [doneActive, setDoneActive] = useState(true);
 
   const next = () => setCurrent(current + 1);
   const prev = () => setCurrent(current - 1);
@@ -68,42 +69,55 @@ const Distribution = () => {
   };
 
   const processAllocation = async () => {
+    const newAlloc = allocID;
     const res = axios.post('http://192.144.13.15/api/allocation/process', {
       "allocation_id": allocID,
-      "rules": {},},{
+      "rules": {},
+    }, {
       headers: {
         "Authorization": `Bearer ${authToken.state.authToken}`,
       }
-    })
+    });
+    if(res) {
+      axios.post('http://192.144.13.15/api/predict/predict', {
+        "allocation_id": newAlloc,
+      }, {
+        headers: {
+          "Authorization": `Bearer ${authToken.state.authToken}`,
+        }
+      });
+    }
   }
 
-  const downloadAllocation = async (alloc_id) => {
-    console.log(alloc_id, authToken.state.authToken)
-    await axios.post('http://192.144.13.15/api/allocation/download', {
-      "allocation_id": alloc_id,
-      "xlsx_or_csv": false,
-      responseType: 'blob',
-      }, {
-      headers: {
-        "Authorization": `Bearer ${authToken.state.authToken}`,
-      }
-    }).then((response) => {
-      console.log(response)
-      const blobUrl = URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = 'result.xlsx';
-      document.body.appendChild(link);
-      link.dispatchEvent(
-        new MouseEvent('click', { 
-          bubbles: true, 
-          cancelable: true, 
-          view: window 
-        })
-      );
-      document.body.removeChild(link);
-    })
-
+  const downloadAllocation = async (alloc_id, type) => {
+    try {
+      await axios.post('http://192.144.13.15/api/allocation/download', {
+        "allocation_id": alloc_id,
+        "xlsx_or_csv": type,
+        }, {
+        headers: {
+          "Authorization": `Bearer ${authToken.state.authToken}`,
+        },
+        responseType: 'blob'
+      }).then((response) => {
+        const blobUrl = URL.createObjectURL(new Blob([response.data], { type: response.headers['content-type'] }));
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = `result.${type?'csv':'xlsx'}`;
+        document.body.appendChild(link);
+        link.dispatchEvent(
+          new MouseEvent('click', { 
+            bubbles: true,
+            cancelable: true,
+            view: window
+          })
+        );
+        document.body.removeChild(link);
+      });
+    } catch (e) {
+      message.error(e?.message)
+      console.log(e);
+    }
   }
 
   const deleteAllocation = async () => {
@@ -118,11 +132,12 @@ const Distribution = () => {
   };
 
   const uploadBills = async ({file}) => {
+    setDoneActive(true);
     try {
       const formData = new FormData();
       formData.append('alloc_id', allocID);
       formData.append('bills_to_pay', file);
-      await axios.post('http://192.144.13.15/api/bills', formData, {
+      const res = await axios.post('http://192.144.13.15/api/bills', formData, {
         headers: {
           "Authorization": `Bearer ${authToken.state.authToken}`,
           "Content-Type": "multipart/form-data",
@@ -130,6 +145,7 @@ const Distribution = () => {
         onUploadProgress: (event) => {
         },
       });
+      if(res) setDoneActive(false);
       message.success(`${file.name} был успешно загружен.`)
     } catch (e) {
       console.log(e);
@@ -139,6 +155,7 @@ const Distribution = () => {
   };
 
   const uploadRefs = async ({file}) => {
+    setDoneActive(true);
     try {
       const formData = new FormData();
       formData.append('alloc_id', allocID);
@@ -149,6 +166,7 @@ const Distribution = () => {
           "Content-Type": "multipart/form-data",
         },
       });
+      if(res) setDoneActive(false);
       message.success(`${file.name} был успешно загружен.`)
     } catch (e) {
       console.log(e);
@@ -268,6 +286,19 @@ const Distribution = () => {
     },
   });
 
+  const setNextBtnState = () => {
+    switch (current) {
+      case 0:
+        return (distrName !== '' && selectedAlocationCategory !== '')?false:true;
+      case 1:
+        return doneActive
+      case stepsTitles.length - 1:
+        return doneActive
+      default:
+        break;
+    }
+  }
+
   const columns = [
     {
       title: 'Название распределение',
@@ -287,7 +318,10 @@ const Distribution = () => {
       dataIndex: 'analys',
       key: 'analys',
       render: (_, record) => (
-        <Button onClick={() => downloadAllocation(record.key)}>Скачать распределение</Button>
+        <div style={{display: 'flex', flexDirection: columns, gap: 10}}>
+          <Button onClick={() => downloadAllocation(record.key, false)}>Скачать XLSX</Button>
+          <Button onClick={() => downloadAllocation(record.key, true)}>Скачать CSV</Button>
+        </div>
       )
     },
     {
@@ -357,7 +391,7 @@ const Distribution = () => {
             </Button>,
             <Button 
               type="primary"
-              disabled={(distrName !== '' && selectedAlocationCategory !== '')?false:true}
+              disabled={setNextBtnState()}
               onClick={() => {
                 if(current === stepsTitles.length - 1) {
                   openModal(false);

@@ -8,67 +8,40 @@ import axios from 'axios';
 import '../service.css';
 import './analysis.css';
 
-const data = [
-  {
-    name: 'Page A',
-    uv: 4000,
-    pv: 2400,
-    amt: 2400,
-  },
-  {
-    name: 'Page B',
-    uv: 3000,
-    pv: 1398,
-    amt: 2210,
-  },
-  {
-    name: 'Page C',
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: 'Page D',
-    uv: 2780,
-    pv: 3908,
-    amt: 2000,
-  },
-  {
-    name: 'Page E',
-    uv: 1890,
-    pv: 4800,
-    amt: 2181,
-  },
-  {
-    name: 'Page F',
-    uv: 2390,
-    pv: 3800,
-    amt: 2500,
-  },
-  {
-    name: 'Page G',
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
-  },
-];
-
 const Analysis = () => {
   const history = useLocation();
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState('building');
   const [searchInputValue, setSearchInputValue] = useState(null);
   const [seacrhOptions, setSearchOptions] = useState([]);
+  const [dataKey, setDataKey] = useState('График');
+  const [data, setData] = useState([]);
 
   const handleRequest = async () => {
-    const res = await axios()
+    try {
+      const response = await axios.post(`http://192.144.13.15/api/predict/${selectedOption}`, {
+        "searchable_value": searchInputValue,
+        "alloc_id": history.state.id,
+        "months_to_show": 100,
+        "filter_rules": {},
+      }, {
+        headers: {
+          "Authorization": `Bearer ${history.state.authToken}`,
+        }
+      });
+      setDataKey(response.data[0].building);
+      setData([...response.data.map(item => {return {name: item.time_period.slice(0, 7), Cost: item.price}})])
+      console.log(response);
+    } catch (e) {
+      console.log(e);
+    };
   }
 
   const hadleSearchChange = async (value) => {
-    console.log(searchInputValue, history.state.id, selectedOption)
+    console.log(value)
     const res = await axios.post('http://192.144.13.15/api/predict/search', {
       "content": value,
-      "alloc_id": history.state.id,
+      "alloc_id": history.state.id, 
       "search_atribute": selectedOption,
       }, {
       headers: {
@@ -122,7 +95,7 @@ const Analysis = () => {
             value={selectedOption}
             onChange={(value) => setSelectedOption(value)}
             options={[
-              { value: 'building', label: 'Поиск по зданим' },
+              { value: 'building', label: 'Поиск по зданиям' },
               { value: 'main_ledger_id', label: 'Счет главной книги' },
               { value: 'fixed_assets_id', label: 'Айди основных средств' },
               { value: 'fixed_assets_class', label: 'Класс основных средств' },
@@ -136,28 +109,27 @@ const Analysis = () => {
           <Spin indicator={<LoadingOutlined style={{ fontSize: 64, color: '#f6ffed' }} spin/>}/>
         ):(
           <>
-            <ResponsiveContainer className="containerChart" height={400}>
+            <ResponsiveContainer className="containerChart" height={700}>
               <LineChart
                 width={500}
                 height={300}
                 data={data}
                 margin={{
-                  top: 5,
+                  top: 30,
                   right: 30,
-                  left: 20,
+                  left: 50,
                   bottom: 5,
                 }}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
+                <CartesianGrid strokeDasharray="5" />
+                <XAxis dataKey="name" tickMargin={12}/>
                 <YAxis />
                 <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="pv" stroke="#8884d8" activeDot={{ r: 8 }} />
-                <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
+                <Legend height={36}/>
+                <Line type="monotone" dataKey="Cost" stroke="#82ca9d" activeDot={{ r: 8 }}/>
               </LineChart>
             </ResponsiveContainer>
-            <ResponsiveContainer className="containerChart" height={400}>
+            {/* <ResponsiveContainer className="containerChart" height={400}>
               <AreaChart
                 width={500}
                 height={400}
@@ -175,7 +147,7 @@ const Analysis = () => {
                 <Tooltip />
                 <Area type="monotone" dataKey="uv" stroke="#8884d8" fill="#8884d8" />
               </AreaChart>
-            </ResponsiveContainer>
+            </ResponsiveContainer> */}
           </>
         )}
       </div>
