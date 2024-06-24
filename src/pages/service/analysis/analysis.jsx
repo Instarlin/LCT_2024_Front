@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Spin, Input, Select, Button, AutoComplete, message } from 'antd';
+import { Spin, Select, Button, AutoComplete, message } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Header } from "../../../components";
 import { Link, ScrollRestoration, useLocation } from "react-router-dom";
-import { LineChart, XAxis, Line, Tooltip, CartesianGrid, ResponsiveContainer, YAxis, Legend, AreaChart, Area } from "recharts";
+import { LineChart, XAxis, Line, Tooltip, CartesianGrid, ResponsiveContainer, YAxis, Legend } from "recharts";
 import axios from 'axios';
 import '../service.css';
 import './analysis.css';
@@ -42,7 +42,6 @@ const Analysis = () => {
   }
 
   const hadleSearchChange = async (value) => {
-    console.log(value)
     const res = await axios.post('http://192.144.13.15/api/predict/search', {
       "content": value,
       "alloc_id": history.state.id,
@@ -68,7 +67,6 @@ const Analysis = () => {
         setIsLoading(false);
         message.success('Анализ загружен');
       } else if(respone.data.content === "False") setTimeout(checkDataState, 10000);
-      console.log(respone)
     } catch (e) {
       console.log(e);
     }
@@ -151,25 +149,6 @@ const Analysis = () => {
                 ))}
               </LineChart>
             </ResponsiveContainer>
-            {/* <ResponsiveContainer className="containerChart" height={400}>
-              <AreaChart
-                width={500}
-                height={400}
-                data={data}
-                margin={{
-                  top: 10,
-                  right: 30,
-                  left: 0,
-                  bottom: 0,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Area type="monotone" dataKey="uv" stroke="#8884d8" fill="#8884d8" />
-              </AreaChart>
-            </ResponsiveContainer> */}
           </>
         )}
       </div>
