@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Spin, Select, Button, AutoComplete, message } from 'antd';
+import { Spin, Select, Button, AutoComplete, Modal, message } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Header } from "../../../components";
 import { Link, ScrollRestoration, useLocation } from "react-router-dom";
@@ -152,6 +152,7 @@ const Analysis = () => {
           </>
         )}
       </div>
+      <Modal></Modal>
     </div>
   );
 };

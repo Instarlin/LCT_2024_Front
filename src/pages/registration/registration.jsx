@@ -117,7 +117,7 @@ const Registration = () => {
                     onChange={e => setSecondPass(e.target.value)} 
                     onKeyDown={e => {
                       if(e.key === 'Enter') {
-                        handleLogin()
+                        handleUserCreation()
                       } else if(e.key === 'ArrowUp') {
                         document.getElementById('firstRegPassForm').focus()
                       }

@@ -201,16 +201,6 @@ const Distribution = () => {
     })
   };
 
-  const startPredict = async (id) => {
-    await axios.post('http://192.144.13.15/api/predict/predict', {
-      "allocation_id": id,
-    }, {
-      headers: {
-        "Authorization": `Bearer ${authToken.state.authToken}`,
-      }
-    });
-  };
-
   const options = tags.map((item) => {
     return {
       value: item,
