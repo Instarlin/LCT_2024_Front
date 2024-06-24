@@ -42,14 +42,19 @@ const Distribution = () => {
         key: value.alloc_id,
         distribution: value.name,
         category: value.category_name,
-        analys: value.user_id
+        analys: value.is_files.toString(),
+        prediction: value.is_predictions.toString(),
+        is_allocation: value.is_files,
+        is_prediction: value.is_predictions
       }));
       setTableData(tableList);
+      console.log(tableList)
     } catch (e) {
       message.error(`${e.response?.data?.detail || "Error occurred"}`);
       if(e.response?.status == 401) redirect("/registration");
       console.log(e);
     };
+    setTimeout(getAlocations, 60000);
   };
 
   const createAlocation = async (name) => {
@@ -213,12 +218,23 @@ const Distribution = () => {
     }
   });
 
-  const filterOptions = tags.map((item) => {
+  const filterOptions1 = tags.map((item) => {
     return {
       text: item,
       value: item,
     }
   });
+
+  const filterOptions2 = [
+    {
+      text: 'С распределением',
+      value: true,
+    },
+    {
+      text: 'Без распределения',
+      value: false,
+    }
+  ];
 
   const items = stepsTitles.map((item) => ({
     key: item.title,
@@ -314,38 +330,47 @@ const Distribution = () => {
       title: 'Название распределение',
       dataIndex: 'distribution',
       key: 'distribution',
+      width: 100,
       ...getColumnSearchProps('distribution'),
     },
     {
       title: 'Категория',
       dataIndex: 'category',
       key: 'category',
-      filters: filterOptions,
+      width: 100,
+      filters: filterOptions1,
       onFilter: (value, record) => record.category.indexOf(value) === 0,
     },
     {
       title: 'Распределение',
       dataIndex: 'analys',
       key: 'analys',
+      width: 100,
       render: (_, record) => (
         <div style={{display: 'flex', flexDirection: columns, gap: 10}}>
-          <Button onClick={() => downloadAllocation(record.key, false)}>Скачать XLSX</Button>
-          <Button onClick={() => downloadAllocation(record.key, true)}>Скачать CSV</Button>
+          <Button onClick={() => downloadAllocation(record.key, false)} disabled={!record.is_allocation}>Скачать XLSX</Button>
+          <Button onClick={() => downloadAllocation(record.key, true)} disabled={!record.is_allocation}>Скачать CSV</Button>
         </div>
-      )
+      ),
+      filters: filterOptions2,
+      onFilter: (value, record) => record.analys.indexOf(value) === 0,
     },
     {
       title: 'Анализ',
       key: 'prediction',
+      width: 100,
       render: (_, record) => (
-        <Button onClick={() => startPredict(record.key)}>
+        <Button disabled={!record.is_prediction}>
           <Link to={'/service/analysis'} state={{authToken: authToken.state.authToken, id: record.key}}>Анализ {record.distribution}</Link>
         </Button>
       ),
+      filters: filterOptions2,
+      onFilter: (value, record) => record.prediction.indexOf(value) === 0,
     },
   ];
 
   useEffect(() => {
+    console.log()
     getAlocations();
     getCategories();
   }, [])

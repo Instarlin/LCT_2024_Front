@@ -34,7 +34,6 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
     <ConfigProvider theme={{
     token: {
     colorPrimary: '#00b96b',
@@ -42,5 +41,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     }}>
       <RouterProvider router={router} />
     </ConfigProvider>
-  </React.StrictMode>
 );

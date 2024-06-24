@@ -82,9 +82,47 @@ const Registration = () => {
               {newState?
                 <>
                   <h1>Регистрация</h1>
-                  <input placeholder="e-mail..." value={login} onChange={e => setLogin(e.target.value)}/>
-                  <input className='passwordForm' placeholder="Создайте пароль..." type="password" value={fisrtPass} onChange={e => setFisrtPass(e.target.value)}/>
-                  <input className='passwordForm' placeholder="Подтвердите пароль..." type="password" value={secondPass} onChange={e => setSecondPass(e.target.value)}/>
+                  <input 
+                    placeholder="e-mail..." 
+                    id='emailField' 
+                    value={login} 
+                    onChange={e => setLogin(e.target.value)}
+                    onKeyDown={e => {
+                      if(e.key === 'Enter' || e.key === 'ArrowDown') {
+                        document.getElementById('firstRegPassForm').focus()
+                      }
+                    }}
+                  />
+                  <input 
+                    className='passwordForm' 
+                    id='firstRegPassForm'
+                    placeholder="Создайте пароль..." 
+                    type="password" 
+                    value={fisrtPass} 
+                    onChange={e => setFisrtPass(e.target.value)} 
+                    onKeyDown={e => {
+                      if(e.key === 'Enter' || e.key === 'ArrowDown') {
+                        document.getElementById('secondRegPassForm').focus()
+                      } else if (e.key === 'ArrowUp') {
+                        document.getElementById('emailField').focus()
+                      }
+                    }}
+                  />
+                  <input 
+                    className='passwordForm' 
+                    id='secondRegPassForm' 
+                    placeholder="Подтвердите пароль..." 
+                    type="password" 
+                    value={secondPass} 
+                    onChange={e => setSecondPass(e.target.value)} 
+                    onKeyDown={e => {
+                      if(e.key === 'Enter') {
+                        handleLogin()
+                      } else if(e.key === 'ArrowUp') {
+                        document.getElementById('firstRegPassForm').focus()
+                      }
+                    }}
+                  />
                   <div onClick={handleUserCreation}>
                     <Link style={{textDecoration: 'none'}} to={"./"} className="btn">Зарегистрироваться</Link>
                   </div>
@@ -93,8 +131,29 @@ const Registration = () => {
               :
                 <>
                   <h1>Войти</h1>
-                  <input placeholder="e-mail..." value={login} onChange={e => setLogin(e.target.value)}/>
-                  <input  placeholder="Пароль..." type="password" value={fisrtPass} onChange={e => setFisrtPass(e.target.value)}/>
+                  <input 
+                    placeholder="e-mail..." 
+                    id='emailForm'
+                    value={login} 
+                    onChange={e => setLogin(e.target.value)}
+                    onKeyDown={e => {
+                      if(e.key === 'Enter' || e.key === 'ArrowDown') document.getElementById('passForm').focus()
+                    }}
+                  />
+                  <input  
+                    placeholder="Пароль..."
+                    id='passForm'
+                    type="password" 
+                    value={fisrtPass}
+                    onChange={e => setFisrtPass(e.target.value)} 
+                    onKeyDown={e => {
+                      if(e.key === 'Enter') {
+                        handleLogin()
+                      } else if(e.key === 'ArrowUp') {
+                        document.getElementById('emailForm').focus()
+                      }
+                    }}
+                  />
                   <Link>Забыли пароль?</Link>
                   <div onClick={handleLogin}>
                     <Link style={{textDecoration: 'none'}} to={"./"} state={{}} className="btn">Войти</Link>
