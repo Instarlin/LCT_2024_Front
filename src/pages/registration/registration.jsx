@@ -34,15 +34,21 @@ const Registration = () => {
   };
 
   const handleUserCreation = async () => {
-    if(fisrtPass === secondPass) {
-      await axios.post('http://192.144.13.15/api/user', {
-        "email": login,
-        "password": fisrtPass
-      }).then(response => {
-        message.success(response.response.data.detail);
-      }).catch((error) => {
-        message.error(error.response.data.detail);
-      })
+    try {
+      if(fisrtPass === secondPass) {
+        const res = await axios.post('http://192.144.13.15/api/user', {
+          "email": login,
+          "password": fisrtPass
+        });
+        message.success('Аккаунт создан');
+        if(res) {
+          handleLogin();
+        }
+        console.log(res)
+      };
+    } catch (e) {
+      message.error(e?.response?.data?.detail);
+      console.log(e);
     }
   }
 
@@ -75,23 +81,23 @@ const Registration = () => {
             <div className="leftFormWrapper">
               {newState?
                 <>
-                  <h1>Registration</h1>
-                  <input placeholder="Login..." value={login} onChange={e => setLogin(e.target.value)}/>
-                  <input className='passwordForm' placeholder="Create password..." type="password" value={fisrtPass} onChange={e => setFisrtPass(e.target.value)}/>
-                  <input className='passwordForm' placeholder="Confirm password..." type="password" value={secondPass} onChange={e => setSecondPass(e.target.value)}/>
+                  <h1>Регистрация</h1>
+                  <input placeholder="e-mail..." value={login} onChange={e => setLogin(e.target.value)}/>
+                  <input className='passwordForm' placeholder="Создайте пароль..." type="password" value={fisrtPass} onChange={e => setFisrtPass(e.target.value)}/>
+                  <input className='passwordForm' placeholder="Подтвердите пароль..." type="password" value={secondPass} onChange={e => setSecondPass(e.target.value)}/>
                   <div onClick={handleUserCreation}>
-                    <Link style={{textDecoration: 'none'}} to={"./"} className="btn">Registration</Link>
+                    <Link style={{textDecoration: 'none'}} to={"./"} className="btn">Зарегистрироваться</Link>
                   </div>
                   <p>Есть аккаунт? <Link onClick={handleClick}>Войти</Link></p>
                 </>
               :
                 <>
-                  <h1>Login</h1>
-                  <input placeholder="Login..." value={login} onChange={e => setLogin(e.target.value)}/>
-                  <input  placeholder="Password..." type="password" value={fisrtPass} onChange={e => setFisrtPass(e.target.value)}/>
+                  <h1>Войти</h1>
+                  <input placeholder="e-mail..." value={login} onChange={e => setLogin(e.target.value)}/>
+                  <input  placeholder="Пароль..." type="password" value={fisrtPass} onChange={e => setFisrtPass(e.target.value)}/>
                   <Link>Забыли пароль?</Link>
                   <div onClick={handleLogin}>
-                    <Link style={{textDecoration: 'none'}} to={"./"} state={{}} className="btn">Login</Link>
+                    <Link style={{textDecoration: 'none'}} to={"./"} state={{}} className="btn">Войти</Link>
                   </div>
                   <div>
                     <p>Нет аккаута? <Link onClick={handleClick}>Зарегистрируйтесь</Link></p>

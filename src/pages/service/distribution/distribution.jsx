@@ -196,6 +196,16 @@ const Distribution = () => {
     })
   };
 
+  const startPredict = async (id) => {
+    await axios.post('http://192.144.13.15/api/predict/predict', {
+      "allocation_id": id,
+    }, {
+      headers: {
+        "Authorization": `Bearer ${authToken.state.authToken}`,
+      }
+    });
+  };
+
   const options = tags.map((item) => {
     return {
       value: item,
@@ -328,7 +338,7 @@ const Distribution = () => {
       title: 'Анализ',
       key: 'prediction',
       render: (_, record) => (
-        <Button>
+        <Button onClick={() => startPredict(record.key)}>
           <Link to={'/service/analysis'} state={{authToken: authToken.state.authToken, id: record.key}}>Анализ {record.distribution}</Link>
         </Button>
       ),

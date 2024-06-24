@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Spin, Input, Select, Button, AutoComplete } from 'antd';
+import { Spin, Input, Select, Button, AutoComplete, message } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Header } from "../../../components";
 import { Link, ScrollRestoration, useLocation } from "react-router-dom";
@@ -14,7 +14,6 @@ const Analysis = () => {
   const [selectedOption, setSelectedOption] = useState('building');
   const [searchInputValue, setSearchInputValue] = useState(null);
   const [seacrhOptions, setSearchOptions] = useState([]);
-  const [dataKey, setDataKey] = useState('График');
   const [data, setData] = useState([]);
 
   const handleRequest = async () => {
@@ -29,9 +28,14 @@ const Analysis = () => {
           "Authorization": `Bearer ${history.state.authToken}`,
         }
       });
-      setDataKey(response.data[0].building);
-      setData([...response.data.map(item => {return {name: item.time_period.slice(0, 7), Cost: item.price}})])
-      console.log(response);
+      const groupedData = {};
+      response.data.forEach(entry => {
+          const { building, time_period, price } = entry;
+          if (!groupedData[building]) groupedData[building] = { building, data: [] };
+          groupedData[building].data.push({ category: time_period.slice(0, 7), Cost: price });
+      });
+      const groupedArray = Object.values(groupedData);
+      setData([...groupedArray]);
     } catch (e) {
       console.log(e);
     };
@@ -41,7 +45,7 @@ const Analysis = () => {
     console.log(value)
     const res = await axios.post('http://192.144.13.15/api/predict/search', {
       "content": value,
-      "alloc_id": history.state.id, 
+      "alloc_id": history.state.id,
       "search_atribute": selectedOption,
       }, {
       headers: {
@@ -49,6 +53,25 @@ const Analysis = () => {
       }
     });
     setSearchOptions([...res.data.map(item => {return {value: item.content}})]);
+  }
+
+  const checkDataState = async () => {
+    try {
+      const respone = await axios.post('http://192.144.13.15/api/predict/check', {
+        "allocation_id": history.state.id,
+      }, {
+        headers: {
+          "Authorization": `Bearer ${history.state.authToken}`,
+        }
+      });
+      if(respone.data.content === "True") {
+        setIsLoading(false);
+        message.success('Анализ загружен');
+      } else if(respone.data.content === "False") setTimeout(checkDataState, 10000);
+      console.log(respone)
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   const handleScroll = () => {
@@ -61,7 +84,7 @@ const Analysis = () => {
 
   useEffect(() => {
     window.onscroll = () => handleScroll();
-    setTimeout(() => setIsLoading(false), 0);
+    if(isLoading) checkDataState(); 
   }, [])
 
   return (
@@ -110,10 +133,7 @@ const Analysis = () => {
         ):(
           <>
             <ResponsiveContainer className="containerChart" height={700}>
-              <LineChart
-                width={500}
-                height={300}
-                data={data}
+              <LineChart width={500} height={300} 
                 margin={{
                   top: 30,
                   right: 30,
@@ -122,11 +142,13 @@ const Analysis = () => {
                 }}
               >
                 <CartesianGrid strokeDasharray="5" />
-                <XAxis dataKey="name" tickMargin={12}/>
-                <YAxis />
+                <XAxis dataKey="category" type="category" allowDuplicatedCategory={false} />
+                <YAxis dataKey="Cost" tickMargin={12}/>
                 <Tooltip />
-                <Legend height={36}/>
-                <Line type="monotone" dataKey="Cost" stroke="#82ca9d" activeDot={{ r: 8 }}/>
+                <Legend />
+                {data.map((item) => (
+                  <Line r={3} type="monotone" stroke="#006e47" dataKey="Cost" data={item.data} name={item.building} key={item.building} />
+                ))}
               </LineChart>
             </ResponsiveContainer>
             {/* <ResponsiveContainer className="containerChart" height={400}>
