@@ -36,19 +36,18 @@ const Registration = () => {
   const handleUserCreation = async () => {
     try {
       if(fisrtPass === secondPass) {
-        const res = await axios.post('http://192.144.13.15/api/user', {
+        const response = await axios.post('http://192.144.13.15/api/user', {
           "email": login,
           "password": fisrtPass
         });
         message.success('Аккаунт создан');
-        if(res) {
-          handleLogin();
-        }
-        console.log(res)
+        if(response) handleLogin();
       };
     } catch (e) {
-      message.error(e?.response?.data?.detail);
       console.log(e);
+      if(e.code === "ERR_NETWORK") {
+        message.error('Нет соединения с сервером')
+      } else message.error(e?.response?.data?.detail);
     }
   }
 
@@ -62,11 +61,13 @@ const Registration = () => {
       data: userInfo,
       headers: { "Content-Type": "multipart/form-data" },
     }).then(response => {
-      console.log(response.data.access_token)
       navigate('/service/distribution', {state: {authToken: response.data.access_token}});
       message.info('Вы вошли в аккаунт');
-    }).catch((error) => {
-      message.error(error.response.data.detail);
+    }).catch((e) => {
+      console.log(e);
+      if(e.code === "ERR_NETWORK") {
+        message.error('Нет соединения с сервером')
+      } else message.error(e?.response?.data?.detail);
     })
   }
 
@@ -166,9 +167,9 @@ const Registration = () => {
             </div>
             <div className="rightFormWrapper">
               <div className="carousel">
-                <div id="img1" className="item counting active"><h2>Контроль</h2></div>
-                <div id="img2" className="item distribution next"><h2>Прогнозирование</h2></div>
-                <div id="img3" className="item moving prev"><h2>Распределение</h2></div>
+                <div id="img1" className="item counting prev"><h2>Контроль</h2></div>
+                <div id="img2" className="item distribution active"><h2>Прогнозирование</h2></div>
+                <div id="img3" className="item moving next"><h2>Распределение</h2></div>
               </div>
             </div>
           </div>

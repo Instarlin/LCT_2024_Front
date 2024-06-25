@@ -1,6 +1,6 @@
 .boilerPlateWrapperDistribution {
   height: 100%;
-  min-height: calc(100vh - 105px);
+  min-height: calc(100vh - 110px);
 }
 
 .distributionWrapper {
@@ -9,15 +9,14 @@
   flex-direction: column;
   background-color: #fff;
   color: #000;
-  height: 100%;
+  padding-top: 24px;
 }
 
 .mainContent {
   display: flex;
   flex-direction: row;
   gap: 20px;
-  padding: 0 0 0 20px;
-  padding-top: 12px;
+  padding: 0 20px 0 20px;
 }
 
 .sidebar {
@@ -157,29 +156,4 @@
   width: 320px;
   height: fit-content;
 }
-
-/* .stepWrapper input {
-  font-family: "SB Sans Text";
-  color: #000;
-  background-color: #f0f0f0;
-  border: 1px solid #f0f0f0;
-  letter-spacing: 0.5px;
-  font-size: 18px;
-  outline: none;
-  width: 320px;
-  margin: 30px 0 8px 0;
-  border-radius: 6px;
-  padding: 7px;
-  transition: .2s;
-}
-
-.stepWrapper input:hover {
-  background-color: #e8e8e8;
-  border: 1px solid #00b96b;
-  transition: .2s;
-}
-
-.stepWrapper .selector {
-  background-color: #f0f0f0;
-} */
 

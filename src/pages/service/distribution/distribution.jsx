@@ -360,7 +360,6 @@ const Distribution = () => {
   ];
 
   useEffect(() => {
-    console.log()
     getAlocations();
     getCategories();
   }, [])
@@ -369,8 +368,13 @@ const Distribution = () => {
     <div className="distrWrapper">
       <Header/>
       <div className="boilerPlateHeader">
-          <Link style={{textDecoration: "none"}} className="headerLink selected" to={"./"}>Распределения</Link>
-          <Link style={{textDecoration: "none"}} className="headerLink" to={"/service/analysis"} state={{authToken: authToken.state.authToken}}>Анализ</Link>
+        <div style={{display: 'flex', flexDirection: 'row', flex: 5, justifyContent: 'flex-start'}}>
+          <Link style={{textDecoration: "none", border: '1px solid #eee'}} className="headerLink selected" to={"./"}>Распределения</Link>
+          <Link style={{textDecoration: "none", border: '1px solid #eee'}} className="headerLink" to={"/service/analysis"} state={{authToken: authToken.state.authToken}}>Анализ</Link>
+        </div>
+        <div style={{display: 'flex', flexDirection: 'row', flex: 1}}>
+          <Link style={{textDecoration: "none", border: '1px solid #eee'}} className="headerLink reg" to={"/registration"}>Сменить аккаунт</Link>
+        </div>
       </div>
       <div className="boilerPlateWrapper boilerPlateWrapperDistribution">
         <div className="distributionWrapper">

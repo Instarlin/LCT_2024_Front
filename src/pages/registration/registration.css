@@ -9,9 +9,9 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - 50px);
+  height: calc(100vh - 55px);
   min-width: 100vw;
-  background: radial-gradient(circle at 70% 70%, #17C166 0%, #0F8B49 36%, #106839 68%, #0a592fec 84%, #0a6c38cc 100%);
+  background: radial-gradient(circle at 70% 70%, #17C166 0%, #0F8B49 36%, #106839 68%, #0a592fec 84%, #0b8142 100%);
 }
 
 .mainForm {
@@ -141,14 +141,14 @@
 .rightFormWrapper .carousel .prev {
   opacity: 0;
   z-index: 2;
-  transform: translate(50%, -50%);
+  transform: translate(-150%, -50%);
   
 }
 
 .rightFormWrapper .carousel .next {
   opacity: 0;
   z-index: 2;
-  transform: translate(-150%, -50%);
+  transform: translate(150%, -50%);
 }
 
 .counting, .distribution, .moving {

@@ -1,6 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import axios from 'axios';
 import {
   createBrowserRouter,
   RouterProvider, 
@@ -17,19 +16,23 @@ const router = createBrowserRouter([
   },
   {
     path: "/registration",
-    element: <Registration/>
+    element: <Registration/>,
+    errorElement: <ErrorPage/>,
   },
   {
     path: "/sandbox",
-    element: <Sandbox/>
+    element: <Sandbox/>,
+    errorElement: <ErrorPage/>,
   },
   {
     path: "/service/distribution",
     element: <Distribution/>,
+    errorElement: <ErrorPage/>,
   },
   {
     path: "/service/analysis",
-    element: <Analysis/>
+    element: <Analysis/>,
+    errorElement: <ErrorPage/>,
   }
 ]);
 
