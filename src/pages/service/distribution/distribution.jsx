@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Header } from "../../../components";
 import { Link, useLocation, redirect } from "react-router-dom";
 import { Table, Space, Modal, Steps, Button, Upload, Select, Input, Switch, message } from 'antd';
-import { InboxOutlined, PlusOutlined, FileAddOutlined, CloudUploadOutlined, SearchOutlined, ForkOutlined, FileTextOutlined } from '@ant-design/icons';
+import { InboxOutlined, PlusOutlined, FileAddOutlined, CloudUploadOutlined, SearchOutlined, ForkOutlined, FileTextOutlined, DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import '../service.css';
 import './distribution.css'
@@ -24,6 +24,7 @@ const Distribution = () => {
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const [doneActive, setDoneActive] = useState(true);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
 
   const next = () => setCurrent(current + 1);
   const prev = () => setCurrent(current - 1);
@@ -48,7 +49,6 @@ const Distribution = () => {
         is_prediction: value.is_predictions
       }));
       setTableData(tableList);
-      console.log(tableList)
     } catch (e) {
       message.error(`${e.response?.data?.detail || "Error occurred"}`);
       if(e.response?.status == 401) redirect("/registration");
@@ -83,15 +83,6 @@ const Distribution = () => {
         "Authorization": `Bearer ${authToken.state.authToken}`,
       }
     });
-    if(res) {
-      axios.post('http://192.144.13.15/api/predict/predict', {
-        "allocation_id": newAlloc,
-      }, {
-        headers: {
-          "Authorization": `Bearer ${authToken.state.authToken}`,
-        }
-      });
-    }
   }
 
   const downloadAllocation = async (alloc_id, type) => {
@@ -123,6 +114,20 @@ const Distribution = () => {
       message.error(e?.message)
       console.log(e);
     }
+  }
+
+  const deleteAllocations = async () => {
+    for(let i = 0; i < selectedRowKeys.length; i++) {
+      await axios.delete('http://192.144.13.15/api/allocation/delete_by_id', {
+        data: {
+          "allocation_id": selectedRowKeys[i],
+        },
+        headers: {
+          "Authorization": `Bearer ${authToken.state.authToken}`,
+        }
+      });
+    }
+    await getAlocations();
   }
 
   const deleteAllocation = async () => {
@@ -359,6 +364,11 @@ const Distribution = () => {
     },
   ];
 
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: value => setSelectedRowKeys(value),
+  };
+
   useEffect(() => {
     getAlocations();
     getCategories();
@@ -369,11 +379,11 @@ const Distribution = () => {
       <Header/>
       <div className="boilerPlateHeader">
         <div style={{display: 'flex', flexDirection: 'row', flex: 5, justifyContent: 'flex-start'}}>
-          <Link style={{textDecoration: "none", border: '1px solid #eee'}} className="headerLink selected" to={"./"}>Распределения</Link>
-          <Link style={{textDecoration: "none", border: '1px solid #eee'}} className="headerLink" to={"/service/analysis"} state={{authToken: authToken.state.authToken}}>Анализ</Link>
+          <Link className="headerLink selected" to={"./"}>Распределения</Link>
+          <Link className="headerLink" to={"/service/analysis"} state={{authToken: authToken.state.authToken}}>Анализ</Link>
         </div>
-        <div style={{display: 'flex', flexDirection: 'row', flex: 1}}>
-          <Link style={{textDecoration: "none", border: '1px solid #eee'}} className="headerLink reg" to={"/registration"}>Сменить аккаунт</Link>
+        <div style={{display: 'flex', flexDirection: 'row', flex: 1, justifyContent: 'flex-end', paddingRight: 25}}>
+          <Link className="headerLink reg" to={"/registration"}>Сменить аккаунт</Link>
         </div>
       </div>
       <div className="boilerPlateWrapper boilerPlateWrapperDistribution">
@@ -389,10 +399,14 @@ const Distribution = () => {
                   <PlusOutlined style={{fontSize: 'large'}}/>
                   <h4>Создать категорию</h4>
                 </div>
+                <div className="bottomBtn" onClick={() => deleteAllocations()}>
+                  <DeleteOutlined style={{fontSize: 'large'}}/>
+                  <h4>Удалить выбранное</h4>
+                </div>
               </div>
             </div>
             <div className="tableWrapper">
-              <Table rowSelection={{}} pagination={{position: ['bottomCenter'], hideOnSinglePage: true}} columns={columns} dataSource={tableData} className="table"/>
+              <Table rowSelection={rowSelection} pagination={{position: ['bottomCenter'], hideOnSinglePage: true}} columns={columns} dataSource={tableData} className="table"/>
             </div>
           </div>
         </div>
@@ -426,6 +440,10 @@ const Distribution = () => {
                   openModal(false);
                   processAllocation();
                   getAlocations();
+                  handleValueSelection('');
+                  setDistrName('');
+                  setCurrent(0);
+                  setDoneActive(true);
                 } else {
                   next()
                 };
