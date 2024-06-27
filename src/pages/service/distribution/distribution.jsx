@@ -2,7 +2,16 @@ import React, { useEffect, useState, useRef } from "react";
 import { Header } from "../../../components";
 import { Link, useLocation, redirect } from "react-router-dom";
 import { Table, Space, Modal, Steps, Button, Upload, Select, Input, Switch, message } from 'antd';
-import { InboxOutlined, PlusOutlined, FileAddOutlined, CloudUploadOutlined, SearchOutlined, ForkOutlined, FileTextOutlined, DeleteOutlined } from '@ant-design/icons';
+import { 
+  InboxOutlined, 
+  PlusOutlined,
+  FileAddOutlined, 
+  CloudUploadOutlined, 
+  SearchOutlined, 
+  ForkOutlined, 
+  FileTextOutlined, 
+  DeleteOutlined 
+} from '@ant-design/icons';
 import axios from 'axios';
 import '../service.css';
 import './distribution.css'
@@ -20,20 +29,20 @@ const Distribution = () => {
   const [tags, setTags] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [fileType, setFileType] = useState('');
-  const authToken = useLocation();
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const [doneActive, setDoneActive] = useState(true);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const authToken = useLocation();
 
   const next = () => setCurrent(current + 1);
   const prev = () => setCurrent(current - 1);
-  
+
   const handleValueSelection = (value) => setSelectedAlocationCategory(value);
 
   const getAlocations = async () => {
     try {
-      const response = await axios.get('http://192.144.13.15/api/allocation', {
+      const response = await axios.get(`${import.meta.env.VITE_PATH}/api/allocation`, {
         "name": null,
         headers: {
           "Authorization": `Bearer ${authToken.state.authToken}`,
@@ -51,21 +60,21 @@ const Distribution = () => {
       setTableData(tableList);
     } catch (e) {
       message.error(`${e.response?.data?.detail || "Error occurred"}`);
-      if(e.response?.status == 401) redirect("/registration");
+      if(e.response?.status == 401) redirect('/registration');
       console.log(e);
     };
     setTimeout(getAlocations, 60000);
   };
 
   const createAlocation = async (name) => {
-    await axios.post('http://192.144.13.15/api/allocation', {
+    await axios.post(`${import.meta.env.VITE_PATH}/api/allocation`, {
       "name": name,
       "category_name": selectedAlocationCategory
     }, {
       headers: {
         "Authorization": `Bearer ${authToken.state.authToken}`,
     }});
-    const response = await axios.get('http://192.144.13.15/api/allocation', {
+    const response = await axios.get(`${import.meta.env.VITE_PATH}/api/allocation`, {
       "name": null,
       headers: {
         "Authorization": `Bearer ${authToken.state.authToken}`,
@@ -75,7 +84,7 @@ const Distribution = () => {
 
   const processAllocation = async () => {
     const newAlloc = allocID;
-    const res = axios.post('http://192.144.13.15/api/allocation/process', {
+    const res = axios.post(`${import.meta.env.VITE_PATH}/api/allocation/process`, {
       "allocation_id": allocID,
       "rules": {},
     }, {
@@ -87,7 +96,7 @@ const Distribution = () => {
 
   const downloadAllocation = async (alloc_id, type) => {
     try {
-      await axios.post('http://192.144.13.15/api/allocation/download', {
+      await axios.post(`${import.meta.env.VITE_PATH}/api/allocation/download`, {
         "allocation_id": alloc_id,
         "xlsx_or_csv": type,
         }, {
@@ -118,7 +127,7 @@ const Distribution = () => {
 
   const deleteAllocations = async () => {
     for(let i = 0; i < selectedRowKeys.length; i++) {
-      await axios.delete('http://192.144.13.15/api/allocation/delete_by_id', {
+      await axios.delete(`${import.meta.env.VITE_PATH}/api/allocation/delete_by_id`, {
         data: {
           "allocation_id": selectedRowKeys[i],
         },
@@ -131,7 +140,7 @@ const Distribution = () => {
   }
 
   const deleteAllocation = async () => {
-    await axios.delete('http://192.144.13.15/api/allocation/delete_by_id', {
+    await axios.delete(`${import.meta.env.VITE_PATH}/api/allocation/delete_by_id`, {
       data: {
         "allocation_id": allocID,
       },
@@ -147,7 +156,7 @@ const Distribution = () => {
       const formData = new FormData();
       formData.append('alloc_id', allocID);
       formData.append('bills_to_pay', file);
-      const res = await axios.post('http://192.144.13.15/api/bills', formData, {
+      const res = await axios.post(`${import.meta.env.VITE_PATH}/api/bills`, formData, {
         headers: {
           "Authorization": `Bearer ${authToken.state.authToken}`,
           "Content-Type": "multipart/form-data",
@@ -170,7 +179,7 @@ const Distribution = () => {
       const formData = new FormData();
       formData.append('alloc_id', allocID);
       formData.append(fileType, file);
-      const res = await axios.post('http://192.144.13.15/api/bills/refs', formData, {
+      const res = await axios.post(`${import.meta.env.VITE_PATH}/api/bills/refs`, formData, {
         headers: {
           "Authorization": `Bearer ${authToken.state.authToken}`,
           "Content-Type": "multipart/form-data",
@@ -185,7 +194,7 @@ const Distribution = () => {
   };
 
   const getCategories = async () => {
-    const response = await axios.get('http://192.144.13.15/api/category', {
+    const response = await axios.get(`${import.meta.env.VITE_PATH}/api/category`, {
     headers: {
       "Authorization": `Bearer ${authToken.state.authToken}`,
     }});
@@ -197,7 +206,7 @@ const Distribution = () => {
   };
 
   const createCategory = async (name) => {
-    await axios.post('http://192.144.13.15/api/category', {
+    await axios.post(`${import.meta.env.VITE_PATH}/api/category`, {
       "name": name,
     }, {
       headers: {

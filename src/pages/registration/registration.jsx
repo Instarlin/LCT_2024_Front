@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { message } from 'antd';
 import axios from 'axios';
 
+
 const Registration = () => {
   const [newState, setNewState] = useState(false);
   const [login, setLogin] = useState('');
@@ -36,7 +37,7 @@ const Registration = () => {
   const handleUserCreation = async () => {
     try {
       if(fisrtPass === secondPass) {
-        const response = await axios.post('http://192.144.13.15/api/user', {
+        const response = await axios.post(`${import.meta.env.VITE_PATH}/api/user`, {
           "email": login,
           "password": fisrtPass
         });
@@ -55,9 +56,9 @@ const Registration = () => {
     let userInfo = new FormData();
     userInfo.append("username", login);
     userInfo.append("password", fisrtPass);
-    await axios({
+    const res = await axios({
       method: "post",
-      url: "http://192.144.13.15/api/auth/token",
+      url: `${import.meta.env.VITE_PATH}/api/auth/token`,
       data: userInfo,
       headers: { "Content-Type": "multipart/form-data" },
     }).then(response => {
@@ -68,7 +69,8 @@ const Registration = () => {
       if(e.code === "ERR_NETWORK") {
         message.error('Нет соединения с сервером')
       } else message.error(e?.response?.data?.detail);
-    })
+    });
+    console.log(res)
   }
 
   useEffect(handleSlider, []);

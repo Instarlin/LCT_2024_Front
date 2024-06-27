@@ -18,7 +18,7 @@ const Analysis = () => {
 
   const handleRequest = async () => {
     try {
-      const response = await axios.post(`http://192.144.13.15/api/predict/${selectedOption}`, {
+      const response = await axios.post(`${import.meta.env.VITE_PATH}/api/predict/${selectedOption}`, {
         "searchable_value": searchInputValue,
         "alloc_id": history.state.id,
         "months_to_show": 100,
@@ -44,7 +44,7 @@ const Analysis = () => {
   }
 
   const hadleSearchChange = async (value) => {
-    const res = await axios.post('http://192.144.13.15/api/predict/search', {
+    const res = await axios.post(`${import.meta.env.VITE_PATH}/api/predict/search`, {
       "content": value,
       "alloc_id": history.state.id,
       "search_atribute": selectedOption,
@@ -58,7 +58,7 @@ const Analysis = () => {
 
   const checkDataState = async () => {
     try {
-      const respone = await axios.post('http://192.144.13.15/api/predict/check', {
+      const respone = await axios.post(`${import.meta.env.VITE_PATH}/api/predict/check`, {
         "allocation_id": history.state.id,
       }, {
         headers: {
