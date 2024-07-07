@@ -5,7 +5,9 @@ import {
   RouterProvider, 
 } from "react-router-dom";
 import { Welcome, Registration, Distribution, ErrorPage, Sandbox, Analysis }  from "./pages";
-import { ConfigProvider } from 'antd'; 
+import { ConfigProvider } from 'antd';
+import { Provider } from "react-redux";
+import store from "./store";
 import "./index.css";
 
 const router = createBrowserRouter([
@@ -37,11 +39,13 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
+  <Provider store={store}>
     <ConfigProvider theme={{
-    token: {
-    colorPrimary: '#00b96b',
-    }
+      token: {
+      colorPrimary: '#00b96b',
+      }
     }}>
       <RouterProvider router={router} />
     </ConfigProvider>
+  </Provider>
 );

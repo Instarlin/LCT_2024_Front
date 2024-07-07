@@ -83,8 +83,7 @@ const Distribution = () => {
   };
 
   const processAllocation = async () => {
-    const newAlloc = allocID;
-    const res = axios.post(`${import.meta.env.VITE_PATH}/api/allocation/process`, {
+    await axios.post(`${import.meta.env.VITE_PATH}/api/allocation/process`, {
       "allocation_id": allocID,
       "rules": {},
     }, {
@@ -92,7 +91,7 @@ const Distribution = () => {
         "Authorization": `Bearer ${authToken.state.authToken}`,
       }
     });
-  }
+  };
 
   const downloadAllocation = async (alloc_id, type) => {
     try {
@@ -122,8 +121,8 @@ const Distribution = () => {
     } catch (e) {
       message.error(e?.message)
       console.log(e);
-    }
-  }
+    };
+  };
 
   const deleteAllocations = async () => {
     for(let i = 0; i < selectedRowKeys.length; i++) {
@@ -135,9 +134,9 @@ const Distribution = () => {
           "Authorization": `Bearer ${authToken.state.authToken}`,
         }
       });
-    }
+    };
     await getAlocations();
-  }
+  };
 
   const deleteAllocation = async () => {
     await axios.delete(`${import.meta.env.VITE_PATH}/api/allocation/delete_by_id`, {

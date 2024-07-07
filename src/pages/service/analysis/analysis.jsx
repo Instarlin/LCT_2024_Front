@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Spin, Select, Button, AutoComplete, Modal, message } from 'antd';
+import { Spin, Select, Button, AutoComplete, Modal, Input, message } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Header } from "../../../components";
 import { Link, ScrollRestoration, useLocation } from "react-router-dom";
@@ -15,6 +15,8 @@ const Analysis = () => {
   const [searchInputValue, setSearchInputValue] = useState('');
   const [seacrhOptions, setSearchOptions] = useState([]);
   const [data, setData] = useState([]);
+  const [noAlocID, setNoAlocID] = useState(false);
+  // const [alocID, setAlocID] = useState(history.state.id);
 
   const handleRequest = async () => {
     try {
@@ -57,21 +59,25 @@ const Analysis = () => {
   }
 
   const checkDataState = async () => {
-    try {
-      const respone = await axios.post(`${import.meta.env.VITE_PATH}/api/predict/check`, {
-        "allocation_id": history.state.id,
-      }, {
-        headers: {
-          "Authorization": `Bearer ${history.state.authToken}`,
-        }
-      });
-      if(respone.data.content === "True") {
-        setIsLoading(false);
-        message.success('Анализ загружен');
-      } else if(respone.data.content === "False") setTimeout(checkDataState, 10000);
-    } catch (e) {
-      console.log(e);
-    }
+    if(history.state.id === undefined) {
+      setNoAlocID(true);
+    } else {
+      try {
+        const respone = await axios.post(`${import.meta.env.VITE_PATH}/api/predict/check`, {
+          "allocation_id": history.state.id,
+        }, {
+          headers: {
+            "Authorization": `Bearer ${history.state.authToken}`,
+          }
+        });
+        if(respone.data.content === "True") {
+          setIsLoading(false);
+          message.success('Анализ загружен');
+        } else if(respone.data.content === "False") setTimeout(checkDataState, 10000);
+      } catch (e) {
+        console.log(e);
+      }
+    };
   }
 
   const handleScroll = () => {
@@ -164,7 +170,15 @@ const Analysis = () => {
           </>
         )}
       </div>
-      <Modal></Modal>
+      <Modal 
+        title='Выберите распределение' 
+        open={noAlocID}
+        onCancel={() => setNoAlocID(false)}
+      >
+        <div style={{marginTop: 20, marginBottom: 20, width: 200}}>
+          <Select style={{width: '100%'}}/>
+        </div>
+      </Modal>
     </div>
   );
 };
