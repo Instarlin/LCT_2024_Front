@@ -1,28 +1,45 @@
-import React from 'react';
+import React, { useCallback } from 'react';
+import ReactFlow, {
+  MiniMap,
+  Controls,
+  Background,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+} from 'reactflow';
 
-const App = () => {
-  const handleLoadSand = async (data) => {
-    console.log(data)
-    let formData = new FormData();
-    formData.append("data", data[0])
-    const response = await fetch(
-      'http://192.144.13.15/api/bills', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          "Authorization": `Bearer ${authToken.state.authToken}`,
-          "Content-Type": "multipart/form-data",
-        }
-      }
-    ) 
-  }
+import 'reactflow/dist/style.css';
+
+const initialNodes = [
+  { id: '1', position: { x: 100, y: 100 }, data: { label: '1' } },
+  { id: '2', position: { x: 250, y: 200 }, data: { label: '2' } },
+];
+const initialEdges = [{ id: 'e1-2', source: '1', target: '2' }];
+
+export default function App() {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const onConnect = useCallback(
+    (params) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges],
+  );
 
   return (
-    <>
-      <form>
-        <input multiple type="file" onChange={handleLoadSand}/>
-      </form>
-    </>
+    <div style={{ width: '100vw', height: '100vh' }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        fitView
+        proOptions={{hideAttribution: true}}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+      >
+        <Controls />
+        <MiniMap />
+        <Background variant="dots" gap={12} size={1} />
+      </ReactFlow>
+    </div>
   );
-};
-export default App;
+}

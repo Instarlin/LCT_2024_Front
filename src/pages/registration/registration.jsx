@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { message } from 'antd';
 import axios from 'axios';
 
+
 const Registration = () => {
   const [newState, setNewState] = useState(false);
   const [login, setLogin] = useState('');
@@ -36,19 +37,18 @@ const Registration = () => {
   const handleUserCreation = async () => {
     try {
       if(fisrtPass === secondPass) {
-        const res = await axios.post('http://192.144.13.15/api/user', {
+        const response = await axios.post(`${import.meta.env.VITE_PATH}/api/user`, {
           "email": login,
           "password": fisrtPass
         });
         message.success('Аккаунт создан');
-        if(res) {
-          handleLogin();
-        }
-        console.log(res)
+        if(response) handleLogin();
       };
     } catch (e) {
-      message.error(e?.response?.data?.detail);
       console.log(e);
+      if(e.code === "ERR_NETWORK") {
+        message.error('Нет соединения с сервером')
+      } else message.error(e?.response?.data?.detail);
     }
   }
 
@@ -56,18 +56,21 @@ const Registration = () => {
     let userInfo = new FormData();
     userInfo.append("username", login);
     userInfo.append("password", fisrtPass);
-    await axios({
+    const res = await axios({
       method: "post",
-      url: "http://192.144.13.15/api/auth/token",
+      url: `${import.meta.env.VITE_PATH}/api/auth/token`,
       data: userInfo,
       headers: { "Content-Type": "multipart/form-data" },
     }).then(response => {
-      console.log(response.data.access_token)
       navigate('/service/distribution', {state: {authToken: response.data.access_token}});
       message.info('Вы вошли в аккаунт');
-    }).catch((error) => {
-      message.error(error.response.data.detail);
-    })
+    }).catch((e) => {
+      console.log(e);
+      if(e.code === "ERR_NETWORK") {
+        message.error('Нет соединения с сервером')
+      } else message.error(e?.response?.data?.detail);
+    });
+    console.log(res)
   }
 
   useEffect(handleSlider, []);
@@ -82,9 +85,47 @@ const Registration = () => {
               {newState?
                 <>
                   <h1>Регистрация</h1>
-                  <input placeholder="e-mail..." value={login} onChange={e => setLogin(e.target.value)}/>
-                  <input className='passwordForm' placeholder="Создайте пароль..." type="password" value={fisrtPass} onChange={e => setFisrtPass(e.target.value)}/>
-                  <input className='passwordForm' placeholder="Подтвердите пароль..." type="password" value={secondPass} onChange={e => setSecondPass(e.target.value)}/>
+                  <input 
+                    placeholder="e-mail..." 
+                    id='emailField' 
+                    value={login} 
+                    onChange={e => setLogin(e.target.value)}
+                    onKeyDown={e => {
+                      if(e.key === 'Enter' || e.key === 'ArrowDown') {
+                        document.getElementById('firstRegPassForm').focus()
+                      }
+                    }}
+                  />
+                  <input 
+                    className='passwordForm' 
+                    id='firstRegPassForm'
+                    placeholder="Создайте пароль..." 
+                    type="password" 
+                    value={fisrtPass} 
+                    onChange={e => setFisrtPass(e.target.value)} 
+                    onKeyDown={e => {
+                      if(e.key === 'Enter' || e.key === 'ArrowDown') {
+                        document.getElementById('secondRegPassForm').focus()
+                      } else if (e.key === 'ArrowUp') {
+                        document.getElementById('emailField').focus()
+                      }
+                    }}
+                  />
+                  <input 
+                    className='passwordForm' 
+                    id='secondRegPassForm' 
+                    placeholder="Подтвердите пароль..." 
+                    type="password" 
+                    value={secondPass} 
+                    onChange={e => setSecondPass(e.target.value)} 
+                    onKeyDown={e => {
+                      if(e.key === 'Enter') {
+                        handleUserCreation()
+                      } else if(e.key === 'ArrowUp') {
+                        document.getElementById('firstRegPassForm').focus()
+                      }
+                    }}
+                  />
                   <div onClick={handleUserCreation}>
                     <Link style={{textDecoration: 'none'}} to={"./"} className="btn">Зарегистрироваться</Link>
                   </div>
@@ -93,8 +134,29 @@ const Registration = () => {
               :
                 <>
                   <h1>Войти</h1>
-                  <input placeholder="e-mail..." value={login} onChange={e => setLogin(e.target.value)}/>
-                  <input  placeholder="Пароль..." type="password" value={fisrtPass} onChange={e => setFisrtPass(e.target.value)}/>
+                  <input 
+                    placeholder="e-mail..." 
+                    id='emailForm'
+                    value={login} 
+                    onChange={e => setLogin(e.target.value)}
+                    onKeyDown={e => {
+                      if(e.key === 'Enter' || e.key === 'ArrowDown') document.getElementById('passForm').focus()
+                    }}
+                  />
+                  <input  
+                    placeholder="Пароль..."
+                    id='passForm'
+                    type="password" 
+                    value={fisrtPass}
+                    onChange={e => setFisrtPass(e.target.value)} 
+                    onKeyDown={e => {
+                      if(e.key === 'Enter') {
+                        handleLogin()
+                      } else if(e.key === 'ArrowUp') {
+                        document.getElementById('emailForm').focus()
+                      }
+                    }}
+                  />
                   <Link>Забыли пароль?</Link>
                   <div onClick={handleLogin}>
                     <Link style={{textDecoration: 'none'}} to={"./"} state={{}} className="btn">Войти</Link>
@@ -107,9 +169,9 @@ const Registration = () => {
             </div>
             <div className="rightFormWrapper">
               <div className="carousel">
-                <div id="img1" className="item counting active"><h2>Контроль</h2></div>
-                <div id="img2" className="item distribution next"><h2>Прогнозирование</h2></div>
-                <div id="img3" className="item moving prev"><h2>Распределение</h2></div>
+                <div id="img1" className="item counting prev"><h2>Контроль</h2></div>
+                <div id="img2" className="item distribution active"><h2>Прогнозирование</h2></div>
+                <div id="img3" className="item moving next"><h2>Распределение</h2></div>
               </div>
             </div>
           </div>

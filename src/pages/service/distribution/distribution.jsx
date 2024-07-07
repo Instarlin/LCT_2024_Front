@@ -2,7 +2,16 @@ import React, { useEffect, useState, useRef } from "react";
 import { Header } from "../../../components";
 import { Link, useLocation, redirect } from "react-router-dom";
 import { Table, Space, Modal, Steps, Button, Upload, Select, Input, Switch, message } from 'antd';
-import { InboxOutlined, PlusOutlined, FileAddOutlined, CloudUploadOutlined, SearchOutlined, ForkOutlined, FileTextOutlined } from '@ant-design/icons';
+import { 
+  InboxOutlined, 
+  PlusOutlined,
+  FileAddOutlined, 
+  CloudUploadOutlined, 
+  SearchOutlined, 
+  ForkOutlined, 
+  FileTextOutlined, 
+  DeleteOutlined 
+} from '@ant-design/icons';
 import axios from 'axios';
 import '../service.css';
 import './distribution.css'
@@ -20,19 +29,20 @@ const Distribution = () => {
   const [tags, setTags] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [fileType, setFileType] = useState('');
-  const authToken = useLocation();
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const [doneActive, setDoneActive] = useState(true);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const authToken = useLocation();
 
   const next = () => setCurrent(current + 1);
   const prev = () => setCurrent(current - 1);
-  
+
   const handleValueSelection = (value) => setSelectedAlocationCategory(value);
 
   const getAlocations = async () => {
     try {
-      const response = await axios.get('http://192.144.13.15/api/allocation', {
+      const response = await axios.get(`${import.meta.env.VITE_PATH}/api/allocation`, {
         "name": null,
         headers: {
           "Authorization": `Bearer ${authToken.state.authToken}`,
@@ -42,25 +52,29 @@ const Distribution = () => {
         key: value.alloc_id,
         distribution: value.name,
         category: value.category_name,
-        analys: value.user_id
+        analys: value.is_files.toString(),
+        prediction: value.is_predictions.toString(),
+        is_allocation: value.is_files,
+        is_prediction: value.is_predictions
       }));
       setTableData(tableList);
     } catch (e) {
       message.error(`${e.response?.data?.detail || "Error occurred"}`);
-      if(e.response?.status == 401) redirect("/registration");
+      if(e.response?.status == 401) redirect('/registration');
       console.log(e);
     };
+    setTimeout(getAlocations, 60000);
   };
 
   const createAlocation = async (name) => {
-    await axios.post('http://192.144.13.15/api/allocation', {
+    await axios.post(`${import.meta.env.VITE_PATH}/api/allocation`, {
       "name": name,
       "category_name": selectedAlocationCategory
     }, {
       headers: {
         "Authorization": `Bearer ${authToken.state.authToken}`,
     }});
-    const response = await axios.get('http://192.144.13.15/api/allocation', {
+    const response = await axios.get(`${import.meta.env.VITE_PATH}/api/allocation`, {
       "name": null,
       headers: {
         "Authorization": `Bearer ${authToken.state.authToken}`,
@@ -69,8 +83,7 @@ const Distribution = () => {
   };
 
   const processAllocation = async () => {
-    const newAlloc = allocID;
-    const res = axios.post('http://192.144.13.15/api/allocation/process', {
+    await axios.post(`${import.meta.env.VITE_PATH}/api/allocation/process`, {
       "allocation_id": allocID,
       "rules": {},
     }, {
@@ -78,20 +91,11 @@ const Distribution = () => {
         "Authorization": `Bearer ${authToken.state.authToken}`,
       }
     });
-    if(res) {
-      axios.post('http://192.144.13.15/api/predict/predict', {
-        "allocation_id": newAlloc,
-      }, {
-        headers: {
-          "Authorization": `Bearer ${authToken.state.authToken}`,
-        }
-      });
-    }
-  }
+  };
 
   const downloadAllocation = async (alloc_id, type) => {
     try {
-      await axios.post('http://192.144.13.15/api/allocation/download', {
+      await axios.post(`${import.meta.env.VITE_PATH}/api/allocation/download`, {
         "allocation_id": alloc_id,
         "xlsx_or_csv": type,
         }, {
@@ -117,11 +121,25 @@ const Distribution = () => {
     } catch (e) {
       message.error(e?.message)
       console.log(e);
-    }
-  }
+    };
+  };
+
+  const deleteAllocations = async () => {
+    for(let i = 0; i < selectedRowKeys.length; i++) {
+      await axios.delete(`${import.meta.env.VITE_PATH}/api/allocation/delete_by_id`, {
+        data: {
+          "allocation_id": selectedRowKeys[i],
+        },
+        headers: {
+          "Authorization": `Bearer ${authToken.state.authToken}`,
+        }
+      });
+    };
+    await getAlocations();
+  };
 
   const deleteAllocation = async () => {
-    await axios.delete('http://192.144.13.15/api/allocation/delete_by_id', {
+    await axios.delete(`${import.meta.env.VITE_PATH}/api/allocation/delete_by_id`, {
       data: {
         "allocation_id": allocID,
       },
@@ -137,7 +155,7 @@ const Distribution = () => {
       const formData = new FormData();
       formData.append('alloc_id', allocID);
       formData.append('bills_to_pay', file);
-      const res = await axios.post('http://192.144.13.15/api/bills', formData, {
+      const res = await axios.post(`${import.meta.env.VITE_PATH}/api/bills`, formData, {
         headers: {
           "Authorization": `Bearer ${authToken.state.authToken}`,
           "Content-Type": "multipart/form-data",
@@ -160,7 +178,7 @@ const Distribution = () => {
       const formData = new FormData();
       formData.append('alloc_id', allocID);
       formData.append(fileType, file);
-      const res = await axios.post('http://192.144.13.15/api/bills/refs', formData, {
+      const res = await axios.post(`${import.meta.env.VITE_PATH}/api/bills/refs`, formData, {
         headers: {
           "Authorization": `Bearer ${authToken.state.authToken}`,
           "Content-Type": "multipart/form-data",
@@ -175,7 +193,7 @@ const Distribution = () => {
   };
 
   const getCategories = async () => {
-    const response = await axios.get('http://192.144.13.15/api/category', {
+    const response = await axios.get(`${import.meta.env.VITE_PATH}/api/category`, {
     headers: {
       "Authorization": `Bearer ${authToken.state.authToken}`,
     }});
@@ -187,23 +205,13 @@ const Distribution = () => {
   };
 
   const createCategory = async (name) => {
-    await axios.post('http://192.144.13.15/api/category', {
+    await axios.post(`${import.meta.env.VITE_PATH}/api/category`, {
       "name": name,
     }, {
       headers: {
         "Authorization": `Bearer ${authToken.state.authToken}`,
       }
     })
-  };
-
-  const startPredict = async (id) => {
-    await axios.post('http://192.144.13.15/api/predict/predict', {
-      "allocation_id": id,
-    }, {
-      headers: {
-        "Authorization": `Bearer ${authToken.state.authToken}`,
-      }
-    });
   };
 
   const options = tags.map((item) => {
@@ -213,12 +221,23 @@ const Distribution = () => {
     }
   });
 
-  const filterOptions = tags.map((item) => {
+  const filterOptions1 = tags.map((item) => {
     return {
       text: item,
       value: item,
     }
   });
+
+  const filterOptions2 = [
+    {
+      text: 'С распределением',
+      value: true,
+    },
+    {
+      text: 'Без распределения',
+      value: false,
+    }
+  ];
 
   const items = stepsTitles.map((item) => ({
     key: item.title,
@@ -314,36 +333,49 @@ const Distribution = () => {
       title: 'Название распределение',
       dataIndex: 'distribution',
       key: 'distribution',
+      width: 100,
       ...getColumnSearchProps('distribution'),
     },
     {
       title: 'Категория',
       dataIndex: 'category',
       key: 'category',
-      filters: filterOptions,
+      width: 100,
+      filters: filterOptions1,
       onFilter: (value, record) => record.category.indexOf(value) === 0,
     },
     {
       title: 'Распределение',
       dataIndex: 'analys',
       key: 'analys',
+      width: 100,
       render: (_, record) => (
         <div style={{display: 'flex', flexDirection: columns, gap: 10}}>
-          <Button onClick={() => downloadAllocation(record.key, false)}>Скачать XLSX</Button>
-          <Button onClick={() => downloadAllocation(record.key, true)}>Скачать CSV</Button>
+          <Button onClick={() => downloadAllocation(record.key, false)} disabled={!record.is_allocation}>Скачать XLSX</Button>
+          <Button onClick={() => downloadAllocation(record.key, true)} disabled={!record.is_allocation}>Скачать CSV</Button>
         </div>
-      )
+      ),
+      filters: filterOptions2,
+      onFilter: (value, record) => record.analys.indexOf(value) === 0,
     },
     {
       title: 'Анализ',
       key: 'prediction',
+      width: 100,
       render: (_, record) => (
-        <Button onClick={() => startPredict(record.key)}>
+        <Button disabled={!record.is_prediction}>
           <Link to={'/service/analysis'} state={{authToken: authToken.state.authToken, id: record.key}}>Анализ {record.distribution}</Link>
         </Button>
       ),
+      filters: filterOptions2,
+      onFilter: (value, record) => record.prediction.indexOf(value) === 0,
     },
   ];
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: value => setSelectedRowKeys(value),
+  };
 
   useEffect(() => {
     getAlocations();
@@ -354,8 +386,13 @@ const Distribution = () => {
     <div className="distrWrapper">
       <Header/>
       <div className="boilerPlateHeader">
-          <Link style={{textDecoration: "none"}} className="headerLink selected" to={"./"}>Распределения</Link>
-          <Link style={{textDecoration: "none"}} className="headerLink" to={"/service/analysis"} state={{authToken: authToken.state.authToken}}>Анализ</Link>
+        <div style={{display: 'flex', flexDirection: 'row', flex: 5, justifyContent: 'flex-start'}}>
+          <Link className="headerLink selected" to={"./"}>Распределения</Link>
+          <Link className="headerLink" to={"/service/analysis"} state={{authToken: authToken.state.authToken}}>Анализ</Link>
+        </div>
+        <div style={{display: 'flex', flexDirection: 'row', flex: 1, justifyContent: 'flex-end', paddingRight: 25}}>
+          <Link className="headerLink reg" to={"/registration"}>Сменить аккаунт</Link>
+        </div>
       </div>
       <div className="boilerPlateWrapper boilerPlateWrapperDistribution">
         <div className="distributionWrapper">
@@ -370,10 +407,14 @@ const Distribution = () => {
                   <PlusOutlined style={{fontSize: 'large'}}/>
                   <h4>Создать категорию</h4>
                 </div>
+                <div className="bottomBtn" onClick={() => deleteAllocations()}>
+                  <DeleteOutlined style={{fontSize: 'large'}}/>
+                  <h4>Удалить выбранное</h4>
+                </div>
               </div>
             </div>
             <div className="tableWrapper">
-              <Table rowSelection={{}} pagination={{position: ['bottomCenter'], hideOnSinglePage: true}} columns={columns} dataSource={tableData} className="table"/>
+              <Table rowSelection={rowSelection} pagination={{position: ['bottomCenter'], hideOnSinglePage: true}} columns={columns} dataSource={tableData} className="table"/>
             </div>
           </div>
         </div>
@@ -407,6 +448,10 @@ const Distribution = () => {
                   openModal(false);
                   processAllocation();
                   getAlocations();
+                  handleValueSelection('');
+                  setDistrName('');
+                  setCurrent(0);
+                  setDoneActive(true);
                 } else {
                   next()
                 };
