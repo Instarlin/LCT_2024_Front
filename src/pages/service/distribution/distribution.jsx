@@ -221,24 +221,6 @@ const Distribution = () => {
     }
   });
 
-  const filterOptions1 = tags.map((item) => {
-    return {
-      text: item,
-      value: item,
-    }
-  });
-
-  const filterOptions2 = [
-    {
-      text: 'С распределением',
-      value: true,
-    },
-    {
-      text: 'Без распределения',
-      value: false,
-    }
-  ];
-
   const items = stepsTitles.map((item) => ({
     key: item.title,
     title: item.title,
@@ -341,7 +323,12 @@ const Distribution = () => {
       dataIndex: 'category',
       key: 'category',
       width: 100,
-      filters: filterOptions1,
+      filters: tags.map((item) => {
+        return {
+          text: item,
+          value: item,
+        }
+      }),
       onFilter: (value, record) => record.category.indexOf(value) === 0,
     },
     {
@@ -355,7 +342,16 @@ const Distribution = () => {
           <Button onClick={() => downloadAllocation(record.key, true)} disabled={!record.is_allocation}>Скачать CSV</Button>
         </div>
       ),
-      filters: filterOptions2,
+      filters: [
+        {
+          text: 'С распределением',
+          value: true,
+        },
+        {
+          text: 'Без распределения',
+          value: false,
+        }
+      ],
       onFilter: (value, record) => record.analys.indexOf(value) === 0,
     },
     {
@@ -367,7 +363,16 @@ const Distribution = () => {
           <Link to={'/service/analysis'} state={{authToken: authToken.state.authToken, id: record.key}}>Анализ {record.distribution}</Link>
         </Button>
       ),
-      filters: filterOptions2,
+      filters: [
+        {
+          text: 'C анализом',
+          value: true,
+        },
+        {
+          text: 'Без анализа',
+          value: false,
+        }
+      ],
       onFilter: (value, record) => record.prediction.indexOf(value) === 0,
     },
   ];
