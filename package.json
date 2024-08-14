@@ -14,7 +14,7 @@
     "@neodrag/react": "^2.0.4",
     "@reduxjs/toolkit": "^2.2.6",
     "antd": "^5.18.1",
-    "axios": "^1.7.2",
+    "axios": "^1.7.4",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
